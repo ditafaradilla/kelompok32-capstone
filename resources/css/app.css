@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    overscroll-behavior: none;
+    background-color: #f9f9ff;
+    color: #111c2c;
+  }
+  main > :first-child {
+    margin-top: 0 !important;
+  }
+  main > :last-child {
+    margin-bottom: 0 !important;
+  }
+}
+
+/* Menyembunyikan scrollbar secara universal sesuai desain UI */
+::-webkit-scrollbar {
+  display: none;
+}
