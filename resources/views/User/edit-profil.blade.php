@@ -108,7 +108,7 @@
                             {{ Auth::user()->name ?? 'User' }}
                         </span>
                     </div>
-                    <a href="{{ route('profile.edit') }}" class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold text-xs hover:opacity-90 transition-opacity shadow-sm" title="Profil Saya">
+                    <a href="{{ route('profile.edit') }}" class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold text-xs hover:opacity-90 transition-opacity shadow-sm overflow-hidden" title="Profil Saya">
                         @php
                             $nameVal = Auth::user()->name ?? 'User';
                             $words = explode(' ', trim($nameVal));
@@ -119,7 +119,11 @@
                                 $initials = strtoupper(substr($nameVal, 0, 2));
                             }
                         @endphp
-                        {{ $initials }}
+                        @if(!empty(Auth::user()->photo))
+                            <img src="{{ asset('storage/' . Auth::user()->photo) }}" alt="Foto" class="w-full h-full object-cover" />
+                        @else
+                            {{ $initials }}
+                        @endif
                     </a>
                 </div>
             </div>
@@ -137,6 +141,12 @@
                 <p class="text-xs text-on-surface-variant">Informasi data akun dan si kecil untuk kebutuhan pesanan Anda.</p>
             </div>
 
+            @if(session('success'))
+                <div class="p-4 rounded-xl bg-green-100 text-green-700 text-xs font-semibold text-center">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             <!-- Profile Form Card -->
             <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data" class="bg-surface-container-lowest rounded-3xl p-6 sm:p-10 shadow-sm border border-surface-container space-y-8">
                 @csrf
@@ -146,12 +156,11 @@
                     <div class="relative shrink-0">
                         <!-- Profile Avatar / Image Container -->
                         <div id="profile-avatar-container" class="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold text-xl shadow-xs overflow-hidden">
-                            <span id="profile-initials">{{ $initials }}</span>
-                            <img id="profile-preview" src="" alt="Pratinjau Foto" class="w-full h-full object-cover hidden" />
+                            <span id="profile-initials" class="{{ !empty(Auth::user()->photo) ? 'hidden' : '' }}">{{ $initials }}</span>
+                            <img id="profile-preview" src="{{ !empty(Auth::user()->photo) ? asset('storage/' . Auth::user()->photo) : '' }}" alt="Pratinjau Foto" class="w-full h-full object-cover {{ empty(Auth::user()->photo) ? 'hidden' : '' }}" />
                         </div>
                     </div>
                     <div class="flex flex-col items-center sm:items-start text-center sm:text-left space-y-1">
-                        <!-- Menampilkan nama lengkap pendaftar langsung dari database Auth -->
                         <h3 class="text-sm font-bold text-on-surface">{{ Auth::user()->name ?? 'User' }}</h3>
                         <p class="text-[11px] text-on-surface-variant">Format JPG, PNG atau WebP (maks. 3 MB)</p>
                         
@@ -160,7 +169,7 @@
 
                         <div class="flex items-center gap-3 pt-1">
                             <button type="button" onclick="document.getElementById('photo-input').click()" class="text-primary font-semibold text-xs hover:underline cursor-pointer">Ganti Foto</button>
-                            <button type="button" id="btn-delete-photo" onclick="deletePhoto()" disabled class="text-outline/40 cursor-not-allowed font-semibold text-xs transition-colors">Hapus</button>
+                            <button type="button" id="btn-delete-photo" onclick="deletePhoto()" {{ empty(Auth::user()->photo) ? 'disabled' : '' }} class="{{ empty(Auth::user()->photo) ? 'text-outline/40 cursor-not-allowed' : 'text-outline hover:text-error cursor-pointer' }} font-semibold text-xs transition-colors">Hapus</button>
                         </div>
                     </div>
                 </div>
@@ -177,7 +186,7 @@
                             <label class="block text-xs font-semibold text-on-surface mb-1.5">Nama Lengkap</label>
                             <div class="relative flex items-center">
                                 <span class="material-symbols-outlined absolute left-3.5 text-outline text-sm">badge</span>
-                                <input type="text" name="name" value="{{ Auth::user()->name ?? '' }}" placeholder="Masukkan nama orang tua..." class="w-full h-11 pl-10 pr-4 bg-surface-container-low text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0" />
+                                <input type="text" name="name" value="{{ old('name', Auth::user()->name ?? '') }}" placeholder="Masukkan nama orang tua..." class="w-full h-11 pl-10 pr-4 bg-surface-container-low text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0" />
                             </div>
                         </div>
 
@@ -186,14 +195,14 @@
                                 <label class="block text-xs font-semibold text-on-surface mb-1.5">Alamat Email</label>
                                 <div class="relative flex items-center">
                                     <span class="material-symbols-outlined absolute left-3.5 text-outline text-sm">mail</span>
-                                    <input type="email" name="email" value="{{ Auth::user()->email ?? '' }}" placeholder="Masukkan alamat email..." class="w-full h-11 pl-10 pr-4 bg-surface-container-low text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0" />
+                                    <input type="email" name="email" value="{{ old('email', Auth::user()->email ?? '') }}" placeholder="Masukkan alamat email..." class="w-full h-11 pl-10 pr-4 bg-surface-container-low text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0" />
                                 </div>
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-on-surface mb-1.5">Nomor Telepon</label>
                                 <div class="relative flex items-center">
                                     <span class="material-symbols-outlined absolute left-3.5 text-outline text-sm">call</span>
-                                    <input type="tel" name="phone" placeholder="Masukkan nomor telepon..." class="w-full h-11 pl-10 pr-4 bg-surface-container-low text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0" />
+                                    <input type="tel" name="phone" value="{{ old('phone', Auth::user()->phone ?? '') }}" placeholder="Masukkan nomor telepon..." class="w-full h-11 pl-10 pr-4 bg-surface-container-low text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0" />
                                 </div>
                             </div>
                         </div>
@@ -202,7 +211,7 @@
                             <label class="block text-xs font-semibold text-on-surface mb-1.5">Alamat Rumah</label>
                             <div class="relative flex items-start">
                                 <span class="material-symbols-outlined absolute left-3.5 top-3 text-outline text-sm">home</span>
-                                <textarea name="address" rows="3" placeholder="Masukkan alamat lengkap rumah..." class="w-full pl-10 pr-4 py-2.5 bg-surface-container-low text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0 resize-none"></textarea>
+                                <textarea name="address" rows="3" placeholder="Masukkan alamat lengkap rumah..." class="w-full pl-10 pr-4 py-2.5 bg-surface-container-low text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0 resize-none">{{ old('address', Auth::user()->address ?? '') }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -221,7 +230,7 @@
                                 <label class="block text-xs font-semibold text-on-surface mb-1.5">Nama Panggilan Si Kecil</label>
                                 <div class="relative flex items-center">
                                     <span class="material-symbols-outlined absolute left-3.5 text-outline text-sm">sentiment_satisfied</span>
-                                    <input type="text" placeholder="Masukkan nama panggilan si kecil..." class="w-full h-11 pl-10 pr-4 bg-surface-container-lowest text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0" />
+                                    <input type="text" name="baby_name" value="{{ old('baby_name', Auth::user()->baby_name ?? '') }}" placeholder="Masukkan nama panggilan si kecil..." class="w-full h-11 pl-10 pr-4 bg-surface-container-lowest text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0" />
                                 </div>
                             </div>
 
@@ -230,22 +239,20 @@
                                 <div class="grid grid-cols-2 gap-2 h-11">
                                     
                                     <!-- Opsi Laki-laki -->
-                                    <label class="flex items-center justify-center gap-2 rounded-xl bg-surface-container-lowest hover:bg-surface-container cursor-pointer text-xs font-semibold text-on-surface-variant select-none transition-all">
-                                        <input type="radio" name="gender" value="laki-laki" class="hidden peer" />
+                                    <label class="flex items-center justify-center gap-2 rounded-xl {{ (old('gender', Auth::user()->gender ?? '') == 'laki-laki') ? 'bg-primary-fixed text-on-primary-fixed shadow-xs' : 'bg-surface-container-lowest text-on-surface-variant' }} hover:bg-surface-container cursor-pointer text-xs font-semibold select-none transition-all">
+                                        <input type="radio" name="gender" value="laki-laki" class="hidden peer" {{ (old('gender', Auth::user()->gender ?? '') == 'laki-laki') ? 'checked' : '' }} />
                                         <span class="material-symbols-outlined text-sm">male</span>
                                         <span>Laki-laki</span>
                                     </label>
                                     
                                     <!-- Opsi Perempuan -->
-                                    <label class="flex items-center justify-center gap-2 rounded-xl bg-surface-container-lowest hover:bg-surface-container cursor-pointer text-xs font-semibold text-on-surface-variant select-none transition-all">
-                                        <input type="radio" name="gender" value="perempuan" class="hidden peer" />
+                                    <label class="flex items-center justify-center gap-2 rounded-xl {{ (old('gender', Auth::user()->gender ?? '') == 'perempuan') ? 'bg-tertiary-fixed text-on-tertiary-fixed shadow-xs' : 'bg-surface-container-lowest text-on-surface-variant' }} hover:bg-surface-container cursor-pointer text-xs font-semibold select-none transition-all">
+                                        <input type="radio" name="gender" value="perempuan" class="hidden peer" {{ (old('gender', Auth::user()->gender ?? '') == 'perempuan') ? 'checked' : '' }} />
                                         <span class="material-symbols-outlined text-sm">female</span>
                                         <span>Perempuan</span>
                                     </label>
 
                                 </div>
-                            </div>
-                            </div>
                             </div>
                         </div>
 
@@ -253,13 +260,12 @@
                             <label class="block text-xs font-semibold text-on-surface mb-1.5">Usia Saat Ini</label>
                             <div class="relative flex items-center">
                                 <span class="material-symbols-outlined absolute left-3.5 text-outline text-sm">calendar_month</span>
-                                <select class="w-full h-11 pl-10 pr-8 bg-surface-container-lowest text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0 appearance-none">
-                                    <option value="" disabled selected>Pilih usia si kecil</option>
-                                    <option>0 -3 Bulan</option>
-                                    <option>4 - 6 Bulan</option>
-                                    <option>6 - 12 Bulan</option>
-                                    <option>1 - 3 Tahun</option>
-                                   
+                                <select name="baby_age" class="w-full h-11 pl-10 pr-8 bg-surface-container-lowest text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0 appearance-none">
+                                    <option value="" disabled {{ empty(old('baby_age', Auth::user()->baby_age ?? '')) ? 'selected' : '' }}>Pilih usia si kecil</option>
+                                    <option value="0 -3 Bulan" {{ (old('baby_age', Auth::user()->baby_age ?? '') == '0 -3 Bulan') ? 'selected' : '' }}>0 -3 Bulan</option>
+                                    <option value="4 - 6 Bulan" {{ (old('baby_age', Auth::user()->baby_age ?? '') == '4 - 6 Bulan') ? 'selected' : '' }}>4 - 6 Bulan</option>
+                                    <option value="6 - 12 Bulan" {{ (old('baby_age', Auth::user()->baby_age ?? '') == '6 - 12 Bulan') ? 'selected' : '' }}>6 - 12 Bulan</option>
+                                    <option value="1 - 3 Tahun" {{ (old('baby_age', Auth::user()->baby_age ?? '') == '1 - 3 Tahun') ? 'selected' : '' }}>1 - 3 Tahun</option>
                                 </select>
                                 <span class="material-symbols-outlined absolute right-3 text-outline text-sm pointer-events-none">expand_more</span>
                             </div>
@@ -273,7 +279,7 @@
                                 </div>
                                 <div class="relative flex items-center">
                                     <span class="material-symbols-outlined absolute left-3.5 text-outline text-sm">monitor_weight</span>
-                                    <input type="text" placeholder="Contoh: 6.5" class="w-full h-11 pl-10 pr-10 bg-surface-container-lowest text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0" />
+                                    <input type="text" name="baby_weight" value="{{ old('baby_weight', Auth::user()->baby_weight ?? '') }}" placeholder="Contoh: 6.5" class="w-full h-11 pl-10 pr-10 bg-surface-container-lowest text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0" />
                                     <span class="absolute right-3.5 text-xs text-outline font-medium">kg</span>
                                 </div>
                             </div>
@@ -285,7 +291,7 @@
                                 </div>
                                 <div class="relative flex items-center">
                                     <span class="material-symbols-outlined absolute left-3.5 text-outline text-sm">height</span>
-                                    <input type="text" placeholder="Contoh: 65" class="w-full h-11 pl-10 pr-10 bg-surface-container-lowest text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0" />
+                                    <input type="text" name="baby_height" value="{{ old('baby_height', Auth::user()->baby_height ?? '') }}" placeholder="Contoh: 65" class="w-full h-11 pl-10 pr-10 bg-surface-container-lowest text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0" />
                                     <span class="absolute right-3.5 text-xs text-outline font-medium">cm</span>
                                 </div>
                             </div>
@@ -364,12 +370,10 @@
                     const initialsSpan = document.getElementById('profile-initials');
                     const deleteBtn = document.getElementById('btn-delete-photo');
 
-                    // Tampilkan gambar dan sembunyikan inisial
                     previewImg.src = e.target.result;
                     previewImg.classList.remove('hidden');
                     initialsSpan.classList.add('hidden');
 
-                    // Aktifkan tombol Hapus
                     deleteBtn.removeAttribute('disabled');
                     deleteBtn.className = "text-outline hover:text-error font-semibold text-xs transition-colors cursor-pointer";
                 }
@@ -383,15 +387,11 @@
             const initialsSpan = document.getElementById('profile-initials');
             const deleteBtn = document.getElementById('btn-delete-photo');
 
-            // Reset input file
             photoInput.value = "";
-
-            // Sembunyikan gambar dan tampilkan kembali inisial
             previewImg.src = "";
             previewImg.classList.add('hidden');
             initialsSpan.classList.remove('hidden');
 
-            // Nonaktifkan kembali tombol Hapus (disabled)
             deleteBtn.setAttribute('disabled', 'true');
             deleteBtn.className = "text-outline/40 cursor-not-allowed font-semibold text-xs transition-colors";
         }

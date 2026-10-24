@@ -157,13 +157,13 @@
             </div>
         </div>
         <div class="p-space-md">
-            <form action="#" method="POST">
-                @csrf
-                <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-error-container text-on-error-container text-xs font-semibold hover:opacity-90 transition-all">
-                    <span class="material-symbols-outlined text-sm">logout</span>
-                    <span>Keluar Admin</span>
-                </button>
-            </form>
+            <form action="{{ route('logout') }}" method="POST">
+            @csrf
+            <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-error-container text-on-error-container text-xs font-semibold hover:opacity-90 transition-all">
+                <span class="material-symbols-outlined text-sm">logout</span>
+                <span>Keluar Admin</span>
+            </button>
+        </form>
         </div>
     </aside>
 

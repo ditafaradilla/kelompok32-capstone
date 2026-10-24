@@ -119,29 +119,49 @@ Route::get('/dashboard/edit-profil', function () {
 
 // Proses Simpan Perubahan Profil (Terima Data Form & Update Database - POST)
 Route::post('/dashboard/edit-profil', function (Request $request) {
-    // 1. Validasi input form profil termasuk gender
+    // 1. Validasi input form profil
     $request->validate([
-        'name'  => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users,email,' . Auth::id(),
-        'gender' => 'nullable|string|in:laki-laki,perempuan',
+        'name'        => 'required|string|max:255',
+        'email'       => 'required|string|email|max:255|unique:users,email,' . Auth::id(),
+        'phone'       => 'nullable|string|max:20',
+        'address'     => 'nullable|string',
+        'baby_name'   => 'nullable|string|max:255',
+        'gender'      => 'nullable|string|in:laki-laki,perempuan',
+        'baby_age'    => 'nullable|string|max:50',
+        'baby_weight' => 'nullable|string|max:50',
+        'baby_height' => 'nullable|string|max:50',
+        'photo'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072', // Maksimal 3MB
     ]);
 
     // 2. Ambil user yang sedang aktif login
     $user = Auth::user();
 
-    // 3. Update data ke database
-    $user->name = $request->name;
-    $user->email = $request->email;
-    
-    // Jika kolom gender sudah ditambahkan di tabel database, aktifkan baris ini:
-    // $user->gender = $request->gender;
+    // 3. Handle upload foto profil jika ada file yang dikirim
+    if ($request->hasFile('photo')) {
+        // Hapus foto lama jika ada
+        if (!empty($user->photo) && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->photo)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($user->photo);
+        }
+        $path = $request->file('photo')->store('profiles', 'public');
+        $user->photo = $path;
+    }
+
+    // 4. Update data ke database
+    $user->name         = $request->name;
+    $user->email        = $request->email;
+    $user->phone        = $request->phone;
+    $user->address      = $request->address;
+    $user->baby_name    = $request->baby_name;
+    $user->gender       = $request->gender;
+    $user->baby_age     = $request->baby_age;
+    $user->baby_weight  = $request->baby_weight;
+    $user->baby_height  = $request->baby_height;
 
     $user->save();
 
-    // 4. Redirect kembali dengan pesan sukses
+    // 5. Redirect kembali dengan pesan sukses
     return redirect()->route('profile.edit')->with('success', 'Perubahan profil berhasil disimpan!');
 })->name('profile.update')->middleware('auth');
-
 
 /*
 |--------------------------------------------------------------------------

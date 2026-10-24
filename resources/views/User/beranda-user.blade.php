@@ -107,9 +107,8 @@
                         <span class="text-xs font-semibold text-on-surface leading-tight">
                             {{ $userName = Auth::user()->name ?? 'User' }}
                         </span>
-                        
                     </div>
-                    <a href="{{ route('profile.edit') }}" class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold text-xs hover:opacity-90 transition-opacity shadow-sm" title="Edit Profil">
+                    <a href="{{ route('profile.edit') }}" class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold text-xs hover:opacity-90 transition-opacity shadow-sm overflow-hidden" title="Edit Profil">
                         @php
                             $words = explode(' ', trim($userName));
                             $initials = '';
@@ -119,8 +118,14 @@
                                 $initials = strtoupper(substr($userName, 0, 2));
                             }
                         @endphp
-                        {{ $initials }}
-                    </a>
+                        
+                        @if(!empty(Auth::user()->photo))
+                            <img src="{{ asset('storage/' . Auth::user()->photo) }}" alt="Foto" class="w-full h-full object-cover" />
+                        @else
+                            {{ $initials }}
+                        @endif
+                    </a> 
+
                     <!-- Tombol Logout (Form POST demi keamanan Laravel) -->
         <form action="{{ route('logout') }}" method="POST" class="inline">
             @csrf
