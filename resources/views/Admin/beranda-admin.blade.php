@@ -136,8 +136,8 @@
                     <a class="flex items-center gap-3 px-space-md py-3 rounded-xl font-body-md text-body-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="kelola-produk" href="#">
                         <span class="material-symbols-outlined text-[20px]">styler</span>
                         <span>Kelola Produk (Baju Bayi)</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-space-md py-3 rounded-xl font-body-md text-body-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="pesanan-dan-transaksi" href="#">
+                    <a class="flex items-center gap-3 px-space-md py-3 rounded-xl font-body-md text-body-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="pesanan-dan-transaksi" href="{{ route('admin.keuangan.index') }}">
+                    
                         <span class="material-symbols-outlined text-[20px]">receipt_long</span>
                         <span>Pesanan &amp; Transaksi</span>
                     </a>
@@ -145,7 +145,7 @@
                         <span class="material-symbols-outlined text-[20px]">group</span>
                         <span>Pelanggan</span>
                     </a>
-                    <a class="flex items-center gap-3 px-space-md py-3 rounded-xl font-body-md text-body-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="laporan-penjualan" href="#">
+                    <a class="flex items-center gap-3 px-space-md py-3 rounded-xl font-body-md text-body-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="laporan-penjualan" href="{{ route('admin.keuangan.laporan') }}">
                         <span class="material-symbols-outlined text-[20px]">analytics</span>
                         <span>Laporan Penjualan</span>
                     </a>
