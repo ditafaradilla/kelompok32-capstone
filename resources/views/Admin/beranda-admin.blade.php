@@ -117,55 +117,8 @@
 </head>
 <body class="bg-surface font-body-md text-on-surface antialiased">
 
-    <!-- ASIDE SIDEBAR -->
-    <aside class="fixed left-0 top-0 bottom-0 w-72 bg-surface-container-lowest z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
-        <div class="flex flex-col">
-            <div class="h-20 px-space-lg flex items-center justify-between">
-                <div class="flex items-center gap-space-sm">
-                    <span class="font-headline-sm text-headline-sm font-bold tracking-tight text-primary">Baby Corner</span>
-                    <span class="px-2 py-0.5 rounded-full bg-surface-container text-on-primary-container font-label-sm text-label-sm">Backoffice</span>
-                </div>
-            </div>
-            <div class="px-space-md py-space-sm">
-                <div class="px-space-sm pb-space-xs font-label-sm text-label-sm uppercase tracking-wider text-outline">Menu Navigasi</div>
-                <nav class="flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary-container font-semibold rounded-xl">
-                    <a aria-current="page" class="flex items-center gap-3 px-space-md py-3 transition-all bg-primary-container text-on-primary-container font-semibold rounded-xl" data-path="dashboard" href="#">
-                        <span class="material-symbols-outlined text-[20px]">dashboard</span>
-                        <span>Dashboard / Beranda</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-space-md py-3 rounded-xl font-body-md text-body-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="kelola-produk" href="#">
-                        <span class="material-symbols-outlined text-[20px]">styler</span>
-                        <span>Kelola Produk (Baju Bayi)</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-space-md py-3 rounded-xl font-body-md text-body-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="pesanan-dan-transaksi" href="#">
-                        <span class="material-symbols-outlined text-[20px]">receipt_long</span>
-                        <span>Pesanan &amp; Transaksi</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-space-md py-3 rounded-xl font-body-md text-body-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="pelanggan" href="#">
-                        <span class="material-symbols-outlined text-[20px]">group</span>
-                        <span>Pelanggan</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-space-md py-3 rounded-xl font-body-md text-body-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="laporan-penjualan" href="#">
-                        <span class="material-symbols-outlined text-[20px]">analytics</span>
-                        <span>Laporan Penjualan</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-space-md py-3 rounded-xl font-body-md text-body-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="pengaturan-toko" href="#">
-                        <span class="material-symbols-outlined text-[20px]">settings</span>
-                        <span>Pengaturan Toko</span>
-                    </a>
-                </nav>
-            </div>
-        </div>
-        <div class="p-space-md">
-            <form action="{{ route('logout') }}" method="POST">
-            @csrf
-            <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-error-container text-on-error-container text-xs font-semibold hover:opacity-90 transition-all">
-                <span class="material-symbols-outlined text-sm">logout</span>
-                <span>Keluar Admin</span>
-            </button>
-        </form>
-        </div>
-    </aside>
+    <!-- ASIDE SIDEBAR (dipindah ke partial bersama) -->
+    @include('Admin.partials.sidebar')
 
     <!-- WRAPPER MAIN & HEADER -->
     <div class="pl-72 flex flex-col min-h-screen">
