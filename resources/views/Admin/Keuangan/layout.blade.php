@@ -48,43 +48,7 @@
 </head>
 <body class="bg-surface font-body-md text-on-surface antialiased">
 
-@php
-    $menus = [
-        ['route' => 'admin.dashboard',         'icon' => 'dashboard',              'label' => 'Dashboard / Beranda', 'active' => ['admin.dashboard']],
-        ['route' => 'admin.keuangan.index',    'icon' => 'account_balance_wallet', 'label' => 'Pembukuan',           'active' => ['admin.keuangan.index', 'admin.keuangan.create', 'admin.keuangan.edit']],
-        ['route' => 'admin.keuangan.laporan',  'icon' => 'summarize',              'label' => 'Laporan Keuangan',    'active' => ['admin.keuangan.laporan']],
-    ];
-@endphp
-
-<aside class="fixed left-0 top-0 bottom-0 w-72 bg-surface-container-lowest z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
-    <div class="flex flex-col">
-        <div class="h-20 px-6 flex items-center gap-2">
-            <span class="text-headline-sm font-bold tracking-tight text-primary">Baby Corner</span>
-            <span class="px-2 py-0.5 rounded-full bg-surface-container text-on-primary-container text-label-sm">Backoffice</span>
-        </div>
-        <div class="px-4 py-2">
-            <div class="px-2 pb-1 text-label-sm uppercase tracking-wider text-outline">Menu Navigasi</div>
-            <nav class="flex flex-col gap-1">
-                @foreach ($menus as $m)
-                    <a href="{{ route($m['route']) }}"
-                       class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs(...$m['active']) ? 'bg-primary-container text-on-primary-container font-semibold' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface' }}">
-                        <span class="material-symbols-outlined text-[20px]">{{ $m['icon'] }}</span>
-                        <span>{{ $m['label'] }}</span>
-                    </a>
-                @endforeach
-            </nav>
-        </div>
-    </div>
-    <div class="p-4">
-        <form action="{{ route('logout') }}" method="POST">
-            @csrf
-            <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-error-container text-on-error-container text-xs font-semibold hover:opacity-90 transition-all">
-                <span class="material-symbols-outlined text-sm">logout</span>
-                <span>Keluar Admin</span>
-            </button>
-        </form>
-    </div>
-</aside>
+@include('Admin.partials.sidebar')
 
 <div class="pl-72 flex flex-col min-h-screen">
     <header class="fixed top-0 left-72 right-0 h-20 bg-surface/85 backdrop-blur-xl z-40 shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
