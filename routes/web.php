@@ -176,3 +176,27 @@ Route::post('/logout', function (Request $request) {
     $request->session()->regenerateToken();
     return redirect('/login')->with('success', 'Anda telah berhasil keluar.');
 })->name('logout')->middleware('auth');
+
+/*
+|--------------------------------------------------------------------------
+| 6. KEUANGAN (Anggota 3) - Pembukuan & Laporan Keuangan
+|--------------------------------------------------------------------------
+*/
+
+use App\Http\Controllers\Admin\FinanceReportController;
+use App\Http\Controllers\Admin\TransactionController;
+use App\Http\Middleware\EnsureUserIsAdmin;
+
+Route::middleware(['auth', EnsureUserIsAdmin::class])
+    ->prefix('admin/keuangan')
+    ->name('admin.keuangan.')
+    ->group(function () {
+        Route::get('/', [TransactionController::class, 'index'])->name('index');
+        Route::get('/laporan', [FinanceReportController::class, 'index'])->name('laporan');
+        Route::get('/create', [TransactionController::class, 'create'])->name('create');
+        Route::post('/', [TransactionController::class, 'store'])->name('store');
+        Route::get('/{transaction}/edit', [TransactionController::class, 'edit'])->name('edit');
+        Route::put('/{transaction}', [TransactionController::class, 'update'])->name('update');
+        Route::patch('/{transaction}/lunas', [TransactionController::class, 'markPaid'])->name('lunas');
+        Route::delete('/{transaction}', [TransactionController::class, 'destroy'])->name('destroy');
+    });
