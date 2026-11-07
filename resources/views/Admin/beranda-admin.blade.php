@@ -176,7 +176,15 @@
                     </div>
                 </div>
 
-              
+
+{{-- DASHBOARD ANALISIS PENJUALAN --}}
+<section class="mt-6">
+
+    @include('Admin.BI.dashboard-content', [
+        'dashboardAction' => route('admin.dashboard')
+    ])
+
+</section>              
 
         <!-- FOOTER -->
         <footer class="w-full bg-surface-container-low py-space-md">

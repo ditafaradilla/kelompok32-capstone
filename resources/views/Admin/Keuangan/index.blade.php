@@ -61,6 +61,60 @@
         </div>
     </form>
 
+    {{-- Unduh data --}}
+    <details class="bg-surface-container-lowest rounded-xl border border-surface-container" @if ($errors->has('export') || $errors->has('export_from') || $errors->has('export_to')) open @endif>
+        <summary class="cursor-pointer list-none flex items-center gap-2 px-5 py-3 text-label-md text-primary">
+            <span class="material-symbols-outlined text-[18px]">download</span> Unduh data (CSV / Excel)
+        </summary>
+        <form method="GET" action="{{ route('admin.keuangan.export') }}" id="exportForm" class="px-5 pb-5 flex flex-col gap-3">
+            {{-- filter yang sedang tampil ikut dikirim untuk pilihan pertama --}}
+            <input type="hidden" name="from" value="{{ $from }}">
+            <input type="hidden" name="to" value="{{ $to }}">
+            <input type="hidden" name="type" value="{{ request('type') }}">
+            <input type="hidden" name="status" value="{{ request('status') }}">
+            <input type="hidden" name="category" value="{{ request('category') }}">
+            <input type="hidden" name="q" value="{{ request('q') }}">
+
+            <label class="flex items-center gap-2 text-body-md">
+                <input type="radio" name="scope" value="filter" checked>
+                Sesuai filter yang sedang tampil ({{ \Carbon\Carbon::parse($from)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($to)->format('d/m/Y') }})
+            </label>
+            <label class="flex items-center gap-2 text-body-md">
+                <input type="radio" name="scope" value="all"> Semua data (tanpa filter)
+            </label>
+            <label class="flex items-center gap-2 text-body-md">
+                <input type="radio" name="scope" value="period"> Pilih periode sendiri
+            </label>
+            <div class="flex flex-wrap items-end gap-3 pl-6">
+                <label class="flex flex-col gap-1 text-label-sm text-outline uppercase">Dari
+                    <input type="date" name="export_from" value="{{ $from }}" class="{{ $field }}">
+                </label>
+                <label class="flex flex-col gap-1 text-label-sm text-outline uppercase">Sampai
+                    <input type="date" name="export_to" value="{{ $to }}" class="{{ $field }}">
+                </label>
+            </div>
+            <div>
+                <button class="px-5 h-10 rounded-full bg-primary text-on-primary text-label-md hover:opacity-90">Unduh CSV</button>
+            </div>
+            <p class="text-label-sm text-outline">File CSV bisa dibuka langsung di Excel atau Google Sheets. Jika semua data tampil dalam satu kolom di Excel, gunakan Data &gt; From Text/CSV dan pilih pemisah titik koma (;).</p>
+        </form>
+    </details>
+    <script>
+        (function () {
+            var form = document.getElementById('exportForm');
+            function toggle() {
+                var period = form.querySelector('input[name=scope]:checked').value === 'period';
+                ['export_from', 'export_to'].forEach(function (n) {
+                    var el = form.querySelector('[name=' + n + ']');
+                    el.disabled = !period;
+                    el.required = period;
+                });
+            }
+            form.querySelectorAll('input[name=scope]').forEach(function (r) { r.addEventListener('change', toggle); });
+            toggle();
+        })();
+    </script>
+
     @if ($errors->any())
         <div class="rounded-xl bg-error-container text-on-error-container px-4 py-3 text-label-md">{{ $errors->first() }}</div>
     @endif
