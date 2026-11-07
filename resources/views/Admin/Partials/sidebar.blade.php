@@ -101,12 +101,6 @@
 
                     <div class="mt-1 ml-6 pl-3 border-l border-outline-variant flex flex-col gap-1">
 
-                        {{-- Analisis Bazar --}}
-                        <a class="{{ $sub }} {{ request()->routeIs('admin.bi.bazar') ? $subActive : $subIdle }}"
-                           href="{{ route('admin.bi.bazar') }}">
-                            Analisis Bazar &amp; Produk
-                        </a>
-
                         {{-- Pembukuan Keuangan --}}
                         <a class="{{ $sub }} {{ request()->routeIs('admin.keuangan.index', 'admin.keuangan.create', 'admin.keuangan.edit') ? $subActive : $subIdle }}"
                            href="{{ route('admin.keuangan.index') }}">

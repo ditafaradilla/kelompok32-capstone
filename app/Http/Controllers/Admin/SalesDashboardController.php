@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 class SalesDashboardController extends BiController
 {
     /**
-     * Halaman Dashboard Analisis Penjualan.
+     * Dashboard analisis penjualan (jika masih diperlukan).
      */
     public function index(
         Request $request,
@@ -23,7 +23,7 @@ class SalesDashboardController extends BiController
     }
 
     /**
-     * Beranda Admin dengan Dashboard Analisis Penjualan.
+     * Beranda Admin dengan Dashboard Penjualan dan Analisis Bazar.
      */
     public function home(
         Request $request,
@@ -36,7 +36,7 @@ class SalesDashboardController extends BiController
     }
 
     /**
-     * Mengambil data yang digunakan oleh kedua halaman.
+     * Mengambil seluruh data untuk dashboard.
      */
     private function dashboardData(
         Request $request,
@@ -56,10 +56,19 @@ class SalesDashboardController extends BiController
         $group = $request->input('group')
             ?: ($days > 62 ? 'bulanan' : 'harian');
 
+        // RINGKASAN PENJUALAN
         $kpi = $analytics->kpi($from, $to);
         $trend = $analytics->trend($from, $to, $group);
         $channel = $analytics->byChannel($from, $to);
 
+        // ANALISIS BAZAR
+        $events = $analytics->bazaarPerformance($from, $to);
+        $untagged = $analytics->untaggedBazaarSales($from, $to);
+
+        // Bazar paling menguntungkan
+        $topBazaar = $events->first();
+
+        // DATA PRODUK DAN PESANAN
         $orderCount = null;
         $topProducts = null;
         $productError = null;
@@ -81,13 +90,23 @@ class SalesDashboardController extends BiController
             'from' => $from,
             'to' => $to,
             'group' => $group,
+
+            // Penjualan
             'kpi' => $kpi,
             'trend' => $trend,
             'channel' => $channel,
+
+            // Bazar
+            'events' => $events,
+            'untagged' => $untagged,
+            'topBazaar' => $topBazaar,
+
+            // Produk
             'orderCount' => $orderCount,
             'topProducts' => $topProducts,
             'productError' => $productError,
             'productsOn' => $products->enabled(),
+
             'presets' => $this->presets(),
         ];
     }
