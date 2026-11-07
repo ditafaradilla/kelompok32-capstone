@@ -175,6 +175,151 @@
 
     </div>
 
+
+{{-- ANALISIS KINERJA BAZAR --}}
+<div class="bg-surface-container-lowest rounded-xl border border-surface-container p-5 space-y-5">
+
+    <div>
+        <h2 class="text-title-lg font-semibold">
+            Analisis Kinerja Bazar
+        </h2>
+
+        <p class="text-sm text-on-surface-variant mt-1">
+            Ringkasan pendapatan, pengeluaran, dan keuntungan setiap bazar.
+        </p>
+    </div>
+
+    {{-- BAZAR PALING MENGUNTUNGKAN --}}
+    @if ($topBazaar)
+
+        <div class="rounded-xl bg-primary-container/30 border border-primary/20 p-5">
+
+            <p class="text-sm text-on-surface-variant">
+                Bazar Paling Menguntungkan
+            </p>
+
+            <h3 class="text-lg font-bold mt-1">
+                {{ $topBazaar->name }}
+            </h3>
+
+            <p class="text-2xl font-bold text-primary mt-3">
+                {{ $formatRupiah($topBazaar->net) }}
+            </p>
+
+            <p class="text-sm text-on-surface-variant mt-1">
+                {{ $topBazaar->net >= 0 ? 'Laba bersih' : 'Kerugian' }}
+            </p>
+
+        </div>
+
+    @else
+
+        <div class="rounded-xl bg-surface-container p-4">
+            <p class="text-sm text-on-surface-variant">
+                Belum terdapat data kinerja bazar pada periode ini.
+            </p>
+        </div>
+
+    @endif
+
+    {{-- TABEL KINERJA SETIAP BAZAR --}}
+    <div>
+
+        <h3 class="text-base font-semibold mb-3">
+            Rincian Kinerja Bazar
+        </h3>
+
+        @if ($events->isNotEmpty())
+
+            <div class="overflow-x-auto">
+
+                <table class="w-full text-sm text-left">
+
+                    <thead>
+                        <tr class="border-b border-outline-variant text-on-surface-variant">
+                            <th class="py-3 pr-4">Nama Bazar</th>
+                            <th class="py-3 pr-4">Penjualan</th>
+                            <th class="py-3 pr-4">Pengeluaran</th>
+                            <th class="py-3 pr-4">Laba/Rugi</th>
+                            <th class="py-3">ROI</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach ($events as $event)
+
+                            <tr class="border-b border-outline-variant/50">
+
+                                <td class="py-3 pr-4 font-medium">
+                                    {{ $event->name }}
+                                </td>
+
+                                <td class="py-3 pr-4 whitespace-nowrap">
+                                    {{ $formatRupiah($event->income) }}
+                                </td>
+
+                                <td class="py-3 pr-4 whitespace-nowrap">
+                                    {{ $formatRupiah($event->expense) }}
+                                </td>
+
+                                <td class="py-3 pr-4 whitespace-nowrap font-semibold
+                                    {{ $event->net >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                                    {{ $formatRupiah($event->net) }}
+                                </td>
+
+                                <td class="py-3 whitespace-nowrap">
+                                    @if ($event->roi !== null)
+                                        {{ number_format($event->roi, 1, ',', '.') }}%
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+
+                            </tr>
+
+                        @endforeach
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        @else
+
+            <p class="text-sm text-on-surface-variant">
+                Belum ada data bazar yang tercatat pada periode ini.
+            </p>
+
+        @endif
+
+    </div>
+
+    {{-- PENJUALAN BAZAR TANPA NAMA --}}
+    @if ($untagged > 0)
+
+        <div class="rounded-lg border border-outline-variant p-4">
+
+            <p class="text-sm font-semibold">
+                Penjualan Bazar Tanpa Nama Bazar
+            </p>
+
+            <p class="text-lg font-bold mt-1">
+                {{ $formatRupiah($untagged) }}
+            </p>
+
+            <p class="text-xs text-on-surface-variant mt-1">
+                Penjualan ini belum dapat dimasukkan ke perhitungan
+                kinerja bazar tertentu karena nama bazar belum diisi.
+            </p>
+
+        </div>
+
+    @endif
+
+</div>
+
     {{-- PRODUK TERLARIS --}}
     <div class="bg-surface-container-lowest rounded-xl border border-surface-container p-5">
 
