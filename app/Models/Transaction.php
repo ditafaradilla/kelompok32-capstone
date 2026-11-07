@@ -17,6 +17,15 @@ class Transaction extends Model
     public const STATUS_PAID   = 'lunas';
     public const STATUS_UNPAID = 'belum_lunas';
 
+    public const STOCK_PURCHASE_CATEGORY = 'Pembelian Stok / Barang';
+
+    /** Pemasukan yang dihitung sebagai PENJUALAN (di luar "Pemasukan Lainnya"). */
+    public const SALES_CATEGORIES = [
+        'Penjualan Online',
+        'Penjualan Bazar',
+        'Penjualan Offline / Langsung',
+    ];
+
     public const INCOME_CATEGORIES = [
         'Penjualan Online',
         'Penjualan Bazar',
@@ -25,7 +34,7 @@ class Transaction extends Model
     ];
 
     public const EXPENSE_CATEGORIES = [
-        'Pembelian Stok / Barang',
+        self::STOCK_PURCHASE_CATEGORY,
         'Ongkos Kirim',
         'Biaya Bazar (Sewa & Operasional)',
         'Gaji & Upah',
