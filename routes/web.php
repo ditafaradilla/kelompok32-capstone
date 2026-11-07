@@ -102,6 +102,9 @@ Route::get('/dashboard', function () {
 
 // Halaman Dashboard Admin / Backoffice
 Route::get('/admin/dashboard', function () {
+    if (Auth::user()->role !== 'admin') {
+        return redirect()->route('dashboard')->with('error', 'Akses khusus Admin.');
+    }
     return view('Admin.beranda-admin');
 })->name('admin.dashboard')->middleware('auth');
 
