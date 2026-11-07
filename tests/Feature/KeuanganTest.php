@@ -75,4 +75,31 @@ class KeuanganTest extends TestCase
         $this->assertSame(500000, $s['receivable']);
         $this->assertSame(200000, $s['payable']);
     }
+
+    public function test_ekspor_csv_semua_data_dan_per_periode(): void
+    {
+        $admin = $this->makeUser('admin');
+        Transaction::create(['transaction_date' => '2026-09-10', 'type' => 'income', 'category' => 'Penjualan Online',
+            'amount' => 1000000, 'payment_status' => 'lunas', 'description' => '=HYPERLINK("x")']);
+        Transaction::create(['transaction_date' => '2026-10-10', 'type' => 'expense', 'category' => 'Ongkos Kirim',
+            'amount' => 300000, 'payment_status' => 'lunas']);
+
+        $all = $this->actingAs($admin)->get('/admin/keuangan/export?scope=all');
+        $all->assertOk();
+        $csv = $all->streamedContent();
+        $this->assertStringContainsString('Penjualan Online', $csv);
+        $this->assertStringContainsString('Ongkos Kirim', $csv);
+        $this->assertStringContainsString("'=HYPERLINK", $csv); // rumus dinetralkan
+
+        $period = $this->actingAs($admin)
+            ->get('/admin/keuangan/export?scope=period&export_from=2026-10-01&export_to=2026-10-31')
+            ->streamedContent();
+        $this->assertStringContainsString('Ongkos Kirim', $period);
+        $this->assertStringNotContainsString('Penjualan Online', $period);
+    }
+
+    public function test_ekspor_ditolak_untuk_user_biasa(): void
+    {
+        $this->actingAs($this->makeUser('user'))->get('/admin/keuangan/export?scope=all')->assertForbidden();
+    }
 }

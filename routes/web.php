@@ -101,9 +101,14 @@ Route::get('/dashboard', function () {
 */
 
 // Halaman Dashboard Admin / Backoffice
-Route::get('/admin/dashboard', function () {
-    return view('Admin.beranda-admin');
-})->name('admin.dashboard')->middleware('auth');
+
+Route::get('/admin/dashboard', [
+    \App\Http\Controllers\Admin\SalesDashboardController::class,
+    'home'
+])->name('admin.dashboard')->middleware([
+    'auth',
+    \App\Http\Middleware\EnsureUserIsAdmin::class
+]);
 
 
 /*
@@ -181,6 +186,7 @@ Route::post('/logout', function (Request $request) {
 |--------------------------------------------------------------------------
 | 6. KEUANGAN (Anggota 3) - Pembukuan & Laporan Keuangan
 |--------------------------------------------------------------------------
+| Tempel blok ini di PALING BAWAH routes/web.php (jangan ubah route lain).
 */
 
 use App\Http\Controllers\Admin\FinanceReportController;
@@ -193,6 +199,7 @@ Route::middleware(['auth', EnsureUserIsAdmin::class])
     ->group(function () {
         Route::get('/', [TransactionController::class, 'index'])->name('index');
         Route::get('/laporan', [FinanceReportController::class, 'index'])->name('laporan');
+        Route::get('/export', [TransactionController::class, 'export'])->name('export');
         Route::get('/create', [TransactionController::class, 'create'])->name('create');
         Route::post('/', [TransactionController::class, 'store'])->name('store');
         Route::get('/{transaction}/edit', [TransactionController::class, 'edit'])->name('edit');
