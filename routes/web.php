@@ -200,3 +200,20 @@ Route::middleware(['auth', EnsureUserIsAdmin::class])
         Route::patch('/{transaction}/lunas', [TransactionController::class, 'markPaid'])->name('lunas');
         Route::delete('/{transaction}', [TransactionController::class, 'destroy'])->name('destroy');
     });
+
+    /*
+|--------------------------------------------------------------------------
+| 7. BUSINESS INTELLIGENCE - Dashboard, Bazar, Forecasting
+|--------------------------------------------------------------------------
+| Tempel di PALING BAWAH routes/web.php, SETELAH blok keuangan.
+| (Tidak perlu menambah "use" baru karena memakai nama lengkap kelas.)
+*/
+
+Route::middleware(['auth', \App\Http\Middleware\EnsureUserIsAdmin::class])
+    ->prefix('admin/analisis')
+    ->name('admin.bi.')
+    ->group(function () {
+        Route::get('/penjualan', [\App\Http\Controllers\Admin\SalesDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/bazar', [\App\Http\Controllers\Admin\BazaarAnalysisController::class, 'index'])->name('bazar');
+        Route::get('/forecast', [\App\Http\Controllers\Admin\ForecastController::class, 'index'])->name('forecast');
+    });
