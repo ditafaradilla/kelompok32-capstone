@@ -5,6 +5,10 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\LocationStockController;
+use App\Http\Controllers\Admin\PurchaseOrderController;
+use App\Http\Controllers\Admin\ReceivingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -96,17 +100,54 @@ Route::get('/dashboard', function () {
 
 /*
 |--------------------------------------------------------------------------
-| 3. ADMIN DASHBOARD ROUTES
+| 3. ADMIN BACKOFFICE & INVENTORY ROUTES (Fitur 8, 9, 10, 11)
 |--------------------------------------------------------------------------
 */
 
-// Halaman Dashboard Admin / Backoffice
-Route::get('/admin/dashboard', function () {
-    if (Auth::user()->role !== 'admin') {
-        return redirect()->route('dashboard')->with('error', 'Akses khusus Admin.');
-    }
-    return view('Admin.beranda-admin');
-})->name('admin.dashboard')->middleware('auth');
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    // Middleware cek role admin
+    Route::group(['middleware' => function ($request, $next) {
+        if (Auth::user()->role !== 'admin') {
+            return redirect()->route('dashboard')->with('error', 'Akses khusus Admin.');
+        }
+        return $next($request);
+    }], function () {
+        // Halaman Dashboard Admin
+        Route::get('/dashboard', function () {
+            $totalProducts = \App\Models\Product::count();
+            $totalLocations = \App\Models\Location::count();
+            $totalOrders = \App\Models\PurchaseOrder::count();
+            $allProducts = \App\Models\Product::with('stocks')->get();
+            $lowStockProducts = $allProducts->filter->is_low_stock;
+            $outOfStockProducts = $allProducts->filter->is_out_of_stock;
+            $recentOrders = \App\Models\PurchaseOrder::with(['supplier', 'targetLocation'])->latest()->take(5)->get();
+
+            return view('Admin.beranda-admin', compact(
+                'totalProducts', 'totalLocations', 'totalOrders',
+                'lowStockProducts', 'outOfStockProducts', 'recentOrders'
+            ));
+        })->name('dashboard');
+
+        // Fitur 8: Kelola Produk dan Pemisahan Stok Toko
+        Route::resource('produk', ProductController::class);
+
+        // Fitur 9: Pencatatan Lokasi dan Stok
+        Route::get('/lokasi-stok', [LocationStockController::class, 'index'])->name('lokasi.index');
+        Route::post('/lokasi-stok/lokasi', [LocationStockController::class, 'storeLocation'])->name('lokasi.store');
+        Route::post('/lokasi-stok/update-stok', [LocationStockController::class, 'updateStock'])->name('lokasi.updateStock');
+
+        // Fitur 10: Pemesanan Barang ke Pemasok
+        Route::get('/pemesanan-barang', [PurchaseOrderController::class, 'index'])->name('pemesanan.index');
+        Route::get('/pemesanan-barang/buat', [PurchaseOrderController::class, 'create'])->name('pemesanan.create');
+        Route::post('/pemesanan-barang', [PurchaseOrderController::class, 'store'])->name('pemesanan.store');
+        Route::get('/pemesanan-barang/{id}', [PurchaseOrderController::class, 'show'])->name('pemesanan.show');
+
+        // Fitur 11: Penerimaan Barang & Peringatan Stok Habis
+        Route::get('/penerimaan-barang', [ReceivingController::class, 'index'])->name('penerimaan.index');
+        Route::get('/penerimaan-barang/{id}', [ReceivingController::class, 'show'])->name('penerimaan.show');
+        Route::post('/penerimaan-barang/{id}', [ReceivingController::class, 'store'])->name('penerimaan.store');
+    });
+});
 
 
 /*
