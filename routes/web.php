@@ -5,6 +5,10 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\LocationStockController;
+use App\Http\Controllers\Admin\PurchaseOrderController;
+use App\Http\Controllers\Admin\ReceivingController;
 
 use App\Http\Controllers\Admin\BazaarAnalysisController;
 use App\Http\Controllers\Admin\FinanceReportController;
@@ -91,17 +95,42 @@ Route::get('/dashboard', function () {
 
 /*
 |--------------------------------------------------------------------------
-| 3. ADMIN DASHBOARD ROUTES
+| 3. ADMIN BACKOFFICE & INVENTORY ROUTES (Fitur 8, 9, 10, 11)
 |--------------------------------------------------------------------------
 */
 
-Route::get('/admin/dashboard', [
-    SalesDashboardController::class,
-    'home'
-])->name('admin.dashboard')->middleware([
-    'auth',
-    EnsureUserIsAdmin::class
-]);
+/*
+|--------------------------------------------------------------------------
+| 3. ADMIN BACKOFFICE & INVENTORY ROUTES (Fitur 8, 9, 10, 11)
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth', EnsureUserIsAdmin::class])->prefix('admin')->name('admin.')->group(function () {
+    // Halaman Dashboard Admin
+    Route::get('/dashboard', [
+        SalesDashboardController::class,
+        'home'
+    ])->name('dashboard');
+
+    // Fitur 8: Kelola Produk dan Pemisahan Stok Toko
+    Route::resource('produk', ProductController::class);
+
+    // Fitur 9: Pencatatan Lokasi dan Stok
+    Route::get('/lokasi-stok', [LocationStockController::class, 'index'])->name('lokasi.index');
+    Route::post('/lokasi-stok/lokasi', [LocationStockController::class, 'storeLocation'])->name('lokasi.store');
+    Route::post('/lokasi-stok/update-stok', [LocationStockController::class, 'updateStock'])->name('lokasi.updateStock');
+
+    // Fitur 10: Pemesanan Barang ke Pemasok
+    Route::get('/pemesanan-barang', [PurchaseOrderController::class, 'index'])->name('pemesanan.index');
+    Route::get('/pemesanan-barang/buat', [PurchaseOrderController::class, 'create'])->name('pemesanan.create');
+    Route::post('/pemesanan-barang', [PurchaseOrderController::class, 'store'])->name('pemesanan.store');
+    Route::get('/pemesanan-barang/{id}', [PurchaseOrderController::class, 'show'])->name('pemesanan.show');
+
+    // Fitur 11: Penerimaan Barang & Peringatan Stok Habis
+    Route::get('/penerimaan-barang', [ReceivingController::class, 'index'])->name('penerimaan.index');
+    Route::get('/penerimaan-barang/{id}', [ReceivingController::class, 'show'])->name('penerimaan.show');
+    Route::post('/penerimaan-barang/{id}', [ReceivingController::class, 'store'])->name('penerimaan.store');
+});
 
 
 /*

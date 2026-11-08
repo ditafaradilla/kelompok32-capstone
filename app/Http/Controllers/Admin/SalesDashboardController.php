@@ -32,6 +32,15 @@ class SalesDashboardController extends BiController
     ) {
         $data = $this->dashboardData($request, $analytics, $products);
 
+        // Data Inventaris & Peringatan Stok (Fitur 8, 9, 10, 11)
+        $data['totalProducts'] = \App\Models\Product::count();
+        $data['totalLocations'] = \App\Models\Location::count();
+        $data['totalOrders'] = \App\Models\PurchaseOrder::count();
+        $allProducts = \App\Models\Product::with('stocks')->get();
+        $data['lowStockProducts'] = $allProducts->filter->is_low_stock;
+        $data['outOfStockProducts'] = $allProducts->filter->is_out_of_stock;
+        $data['recentOrders'] = \App\Models\PurchaseOrder::with(['supplier', 'targetLocation'])->latest()->take(5)->get();
+
         return view('Admin.beranda-admin', $data);
     }
 
