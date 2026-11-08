@@ -1,7 +1,7 @@
 @extends('Admin.layout')
 
 @section('title', 'Pemesanan Barang ke Pemasok')
-@section('page-title', 'Fitur 10: Pemesanan Barang ke Pemasok')
+@section('page-title', 'Pemesanan Barang ke Pemasok')
 @section('page-subtitle', 'Sesuai Diagram Alir: Catatan pesanan pembelian barang (Purchase Order) ke pemasok/konveksi baju bayi')
 
 @section('content')
