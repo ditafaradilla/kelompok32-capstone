@@ -6,7 +6,7 @@
 
 @section('content')
 <div class="flex flex-col w-full gap-8">
-    
+
     <!-- Welcome Banner Card -->
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-surface-container-lowest p-6 rounded-2xl shadow-xs border border-surface-container">
         <div class="space-y-1">
