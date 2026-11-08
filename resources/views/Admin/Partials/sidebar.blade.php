@@ -57,13 +57,36 @@
                     <span>Dashboard / Beranda</span>
                 </a>
 
-                {{-- 2. KELOLA PRODUK --}}
-                <a class="{{ $item }} {{ $idle }}"
+                {{-- 2. KELOLA PRODUK & STOK (Fitur 8) --}}
+                <a class="{{ $item }} {{ request()->routeIs('admin.produk.*') ? $active : $idle }}"
                    data-path="kelola-produk"
-                   href="#">
-
+                   href="{{ route('admin.produk.index') }}">
                     <span class="material-symbols-outlined text-[20px]">styler</span>
-                    <span>Kelola Produk (Baju Bayi)</span>
+                    <span>Kelola Produk &amp; Stok</span>
+                </a>
+
+                {{-- LOKASI & STOK TOKO (Fitur 9) --}}
+                <a class="{{ $item }} {{ request()->routeIs('admin.lokasi.*') ? $active : $idle }}"
+                   data-path="lokasi-stok"
+                   href="{{ route('admin.lokasi.index') }}">
+                    <span class="material-symbols-outlined text-[20px]">warehouse</span>
+                    <span>Lokasi &amp; Stok Toko</span>
+                </a>
+
+                {{-- PEMESANAN PEMASOK (Fitur 10) --}}
+                <a class="{{ $item }} {{ request()->routeIs('admin.pemesanan.*') ? $active : $idle }}"
+                   data-path="pemesanan-pemasok"
+                   href="{{ route('admin.pemesanan.index') }}">
+                    <span class="material-symbols-outlined text-[20px]">local_shipping</span>
+                    <span>Pemesanan Pemasok</span>
+                </a>
+
+                {{-- PENERIMAAN BARANG (Fitur 11) --}}
+                <a class="{{ $item }} {{ request()->routeIs('admin.penerimaan.*') ? $active : $idle }}"
+                   data-path="penerimaan-barang"
+                   href="{{ route('admin.penerimaan.index') }}">
+                    <span class="material-symbols-outlined text-[20px]">inventory_2</span>
+                    <span>Penerimaan Barang</span>
                 </a>
 
                 {{-- 3. PESANAN & TRANSAKSI --}}
