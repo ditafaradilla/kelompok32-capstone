@@ -1,7 +1,7 @@
 @extends('Admin.layout')
 
 @section('title', 'Kelola Produk & Stok')
-@section('page-title', 'Fitur 8: Kelola Produk & Pemisahan Stok Toko')
+@section('page-title', 'Kelola Produk & Pemisahan Stok Toko')
 @section('page-subtitle', 'Katalog busana bayi, pemisahan alokasi stok di toko fisik vs gudang, dan status ketersediaan')
 
 @section('content')

@@ -1,7 +1,7 @@
 @extends('Admin.layout')
 
 @section('title', 'Lokasi & Stok Toko')
-@section('page-title', 'Fitur 9: Pencatatan Lokasi dan Stok Toko')
+@section('page-title', 'Pencatatan Lokasi dan Stok Toko')
 @section('page-subtitle', 'Sesuai Diagram Alir: Kelola master titik toko & gudang, serta input/sesuaikan jumlah stok produk pada lokasi tertentu')
 
 @section('content')
@@ -9,7 +9,7 @@
 
     <!-- BAGIAN 1: DAFTAR LOKASI TOKO & GUDANG + FORM TAMBAH LOKASI (Diagram 2) -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
+
         <!-- Tabel Daftar Lokasi Toko & Gudang -->
         <div class="lg:col-span-8 bg-surface-container-lowest rounded-2xl border border-surface-container shadow-xs p-6 space-y-4">
             <div class="flex items-center justify-between pb-3 border-b border-surface-container">

@@ -1,7 +1,7 @@
 @extends('Admin.layout')
 
 @section('title', 'Penerimaan Barang Masuk')
-@section('page-title', 'Fitur 11: Penerimaan Barang & Peringatan Stok Habis')
+@section('page-title', 'Penerimaan Barang & Peringatan Stok Habis')
 @section('page-subtitle', 'Sesuai Diagram Alir 4: Pilih catatan pesanan yang barangnya tiba, konfirmasi jumlah fisik yang diterima, dan tambah stok')
 
 @section('content')
