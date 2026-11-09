@@ -1,0 +1,266 @@
+@extends('User.layout')
+
+@section('title', $product->name . ' - Baby Corner')
+
+@section('content')
+<div class="w-full max-w-[1280px] px-4 lg:px-8 mx-auto flex flex-col gap-8 pb-16">
+    
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-1.5 text-xs text-outline pt-2 flex-wrap">
+        <a href="{{ route('dashboard') }}" class="hover:text-primary transition-colors">Beranda</a>
+        <span class="material-symbols-outlined text-xs">chevron_right</span>
+        <a href="{{ route('produk.index') }}" class="hover:text-primary transition-colors">Katalog Produk</a>
+        <span class="material-symbols-outlined text-xs">chevron_right</span>
+        <a href="{{ route('produk.index', ['category' => $product->category]) }}" class="hover:text-primary transition-colors">{{ $product->category }}</a>
+        <span class="material-symbols-outlined text-xs">chevron_right</span>
+        <span class="text-on-surface font-semibold truncate max-w-[200px]">{{ $product->name }}</span>
+    </nav>
+
+    <!-- Detail Produk Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start" 
+         x-data="variantSelector({
+             variants: {{ Js::from($variantsData) }},
+             productPrice: {{ (float) $product->price }}
+         })">
+        
+        <!-- Kolom Kiri: Galeri Foto Produk -->
+        <div class="lg:col-span-5 space-y-4">
+            <div class="relative w-full aspect-square rounded-3xl bg-surface-container-low border border-surface-container overflow-hidden flex items-center justify-center shadow-xs">
+                @if(!empty($product->photo))
+                    <img src="{{ asset('storage/' . $product->photo) }}" alt="{{ $product->name }}" class="w-full h-full object-cover" />
+                @else
+                    <div class="flex flex-col items-center justify-center text-outline/40 p-8 text-center">
+                        <span class="material-symbols-outlined text-7xl text-primary/30 mb-2">styler</span>
+                        <span class="text-xs font-semibold text-outline">Baby Corner Organik</span>
+                        <span class="text-[10px] text-outline/60 mt-1">100% Katun Organik Bersertifikasi</span>
+                    </div>
+                @endif
+
+                <!-- Badge Kategori -->
+                <span class="absolute top-4 left-4 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-xs font-semibold text-on-surface shadow-xs">
+                    {{ $product->category }}
+                </span>
+            </div>
+
+            <!-- Jaminan Kualitas Kecil di Bawah Foto -->
+            <div class="grid grid-cols-2 gap-3 text-[11px] text-on-surface-variant">
+                <div class="p-3 rounded-2xl bg-surface-container-low flex items-center gap-2">
+                    <span class="material-symbols-outlined text-secondary text-base shrink-0">verified</span>
+                    <span>OEKO-TEX Certified</span>
+                </div>
+                <div class="p-3 rounded-2xl bg-surface-container-low flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-base shrink-0">sanitizer</span>
+                    <span>Medical-grade Pack</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kolom Kanan: Informasi & Pemilih Varian -->
+        <div class="lg:col-span-7 bg-surface-container-lowest rounded-3xl p-6 sm:p-8 border border-surface-container shadow-sm space-y-6">
+            
+            <!-- Judul & Harga -->
+            <div class="space-y-2 pb-4 border-b border-surface-container">
+                <div class="text-[11px] font-mono text-outline">SKU: <span x-text="currentVariant ? currentVariant.sku : '{{ $product->sku }}'"></span></div>
+                <h1 class="text-xl sm:text-2xl font-bold text-on-surface tracking-tight leading-snug">
+                    {{ $product->name }}
+                </h1>
+                
+                <div class="flex items-baseline gap-3 pt-1">
+                    <div class="text-2xl sm:text-3xl font-extrabold text-primary">
+                        {{ rupiah($product->price) }}
+                    </div>
+                    <span class="text-[11px] text-outline">Harga per potong</span>
+                </div>
+            </div>
+
+            <!-- Pemilih Varian (Ukuran & Warna) -->
+            <div class="space-y-5">
+                
+                <!-- 1. Pemilih Ukuran -->
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-bold text-on-surface flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-sm text-primary">straighten</span>
+                            <span>Pilih Ukuran: <span class="text-primary" x-text="selectedSize"></span></span>
+                        </label>
+
+                        {{-- SLOT FRI-01: rekomendasi ukuran --}}
+                        <!-- Slot untuk tombol/panduan rekomendasi ukuran bayi otomatis -->
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                        <template x-for="size in sizes" :key="size">
+                            <button type="button"
+                                    @click="selectSize(size)"
+                                    :class="selectedSize === size 
+                                        ? 'border-primary bg-primary/10 text-primary font-bold shadow-xs' 
+                                        : 'border-surface-container bg-surface-container-low text-on-surface hover:bg-surface-container'"
+                                    class="px-3.5 py-2 rounded-xl border text-xs transition-all cursor-pointer flex items-center gap-1">
+                                <span x-text="size"></span>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- 2. Pemilih Warna (Hanya warna yang tersedia di ukuran terpilih) -->
+                <div class="space-y-2" x-show="availableColorsForSelectedSize.length > 0">
+                    <label class="text-xs font-bold text-on-surface flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm text-secondary">palette</span>
+                        <span>Pilih Warna: <span class="text-secondary" x-text="selectedColor"></span></span>
+                    </label>
+
+                    <div class="flex flex-wrap gap-2">
+                        <template x-for="item in availableColorsForSelectedSize" :key="item.warna">
+                            <button type="button"
+                                    @click="selectColor(item.warna, item.stok_tersedia)"
+                                    :disabled="item.stok_tersedia <= 0"
+                                    :class="{
+                                        'border-secondary bg-secondary/10 text-secondary font-bold shadow-xs': selectedColor === item.warna && item.stok_tersedia > 0,
+                                        'border-surface-container bg-surface-container-low text-on-surface hover:bg-surface-container cursor-pointer': selectedColor !== item.warna && item.stok_tersedia > 0,
+                                        'opacity-40 cursor-not-allowed line-through border-dashed border-outline/30 bg-surface-container-low text-outline': item.stok_tersedia <= 0
+                                    }"
+                                    class="px-3.5 py-2 rounded-xl border text-xs transition-all flex items-center gap-1.5">
+                                <span x-text="item.warna"></span>
+                                <span x-show="item.stok_tersedia <= 0" class="text-[9px] uppercase font-bold text-error">(Habis)</span>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- 3. Status Stok Varian Terpilih -->
+                <div class="p-3.5 rounded-2xl bg-surface-container-low flex items-center justify-between text-xs">
+                    <span class="text-on-surface-variant font-medium flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm text-outline">inventory_2</span>
+                        <span>Status Ketersediaan:</span>
+                    </span>
+
+                    <div>
+                        <template x-if="isOutOfStock">
+                            <span class="px-2.5 py-1 rounded-full bg-error-container text-error font-bold text-[11px]">
+                                Stok Habis
+                            </span>
+                        </template>
+                        <template x-if="!isOutOfStock && currentStock <= 5">
+                            <span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-bold text-[11px]">
+                                Sisa <span x-text="currentStock"></span> pcs
+                            </span>
+                        </template>
+                        <template x-if="!isOutOfStock && currentStock > 5">
+                            <span class="px-2.5 py-1 rounded-full bg-green-100 text-green-800 font-bold text-[11px]">
+                                Stok Tersedia (<span x-text="currentStock"></span> pcs)
+                            </span>
+                        </template>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ACTION BUTTONS & SLOTS -->
+            <div class="space-y-3 pt-2">
+                {{-- SLOT FRI-03: tombol tambah ke keranjang --}}
+                <button type="button" disabled class="w-full h-12 rounded-2xl bg-surface-container text-outline cursor-not-allowed font-semibold text-xs flex items-center justify-center gap-2 transition-all">
+                    <span class="material-symbols-outlined text-base">shopping_bag</span>
+                    <span>Tambah ke Keranjang (Segera hadir)</span>
+                </button>
+
+                {{-- SLOT FRI-16: tombol WhatsApp --}}
+                <!-- Slot untuk tombol pemesanan WhatsApp cepat -->
+            </div>
+
+            <!-- Deskripsi Produk -->
+            <div class="pt-4 border-t border-surface-container space-y-2">
+                <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider text-outline flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">description</span>
+                    <span>Deskripsi Produk</span>
+                </h3>
+                <p class="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
+                    {{ $product->description ?: 'Pakaian bayi katun organik berkualitas tinggi, didesain khusus untuk memberikan kelembutan alami dan kenyamanan maksimal bagi buah hati Anda.' }}
+                </p>
+            </div>
+
+            {{-- SLOT FRI-07: rating & ulasan --}}
+            <!-- Slot untuk ulasan pembeli dan penilaian produk -->
+
+        </div>
+
+    </div>
+
+    <!-- Produk Terkait (4 Produk Kategori Serupa) -->
+    @if($relatedProducts->count() > 0)
+        <div class="space-y-4 pt-8 border-t border-surface-container">
+            <div>
+                <h2 class="text-base sm:text-lg font-bold text-on-surface">Pilihan Lain Kategori {{ $product->category }}</h2>
+                <p class="text-xs text-on-surface-variant">Rekomendasi pakaian bayi katun organik sejenis</p>
+            </div>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                @foreach($relatedProducts as $rel)
+                    @include('User.components.product-card', ['product' => $rel])
+                @endforeach
+            </div>
+        </div>
+    @endif
+
+</div>
+@endsection
+
+@push('scripts')
+<script>
+    function variantSelector(config) {
+        return {
+            variants: config.variants,
+            sizes: [...new Set(config.variants.map(v => v.ukuran).filter(Boolean))],
+            selectedSize: '',
+            selectedColor: '',
+            
+            init() {
+                const inStockVariant = this.variants.find(v => v.stok_tersedia > 0);
+                if (inStockVariant) {
+                    this.selectedSize = inStockVariant.ukuran;
+                    this.selectedColor = inStockVariant.warna;
+                } else if (this.sizes.length > 0) {
+                    this.selectedSize = this.sizes[0];
+                    const firstForSize = this.variants.find(v => v.ukuran === this.selectedSize);
+                    this.selectedColor = firstForSize ? firstForSize.warna : '';
+                }
+            },
+
+            get availableColorsForSelectedSize() {
+                return this.variants.filter(v => v.ukuran === this.selectedSize);
+            },
+
+            get currentVariant() {
+                return this.variants.find(v => v.ukuran === this.selectedSize && v.warna === this.selectedColor)
+                    || this.availableColorsForSelectedSize[0]
+                    || null;
+            },
+
+            get currentStock() {
+                return this.currentVariant ? parseInt(this.currentVariant.stok_tersedia) : 0;
+            },
+
+            get isOutOfStock() {
+                return this.currentStock <= 0;
+            },
+
+            selectSize(size) {
+                this.selectedSize = size;
+                const colors = this.variants.filter(v => v.ukuran === size);
+                const sameColor = colors.find(v => v.warna === this.selectedColor);
+                if (sameColor && sameColor.stok_tersedia > 0) {
+                    // maintain color
+                } else {
+                    const inStock = colors.find(v => v.stok_tersedia > 0);
+                    this.selectedColor = inStock ? inStock.warna : (colors[0] ? colors[0].warna : '');
+                }
+            },
+
+            selectColor(color, stock) {
+                if (stock <= 0) return;
+                this.selectedColor = color;
+            }
+        };
+    }
+</script>
+@endpush
+

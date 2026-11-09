@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\FinanceReportController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\ForecastController;
 use App\Http\Controllers\Admin\SalesDashboardController;
+use App\Http\Controllers\User\CatalogController;
 use App\Http\Middleware\EnsureUserIsAdmin;
 
 /*
@@ -84,13 +85,15 @@ Route::post('/register', function (Request $request) {
 
 /*
 |--------------------------------------------------------------------------
-| 2. USER DASHBOARD ROUTES
+| 2. USER DASHBOARD & CATALOG ROUTES (Persiapan B)
 |--------------------------------------------------------------------------
 */
 
-Route::get('/dashboard', function () {
-    return view('User.beranda-user');
-})->name('dashboard')->middleware('auth');
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [CatalogController::class, 'home'])->name('dashboard');
+    Route::get('/produk', [CatalogController::class, 'index'])->name('produk.index');
+    Route::get('/produk/{product}', [CatalogController::class, 'show'])->name('produk.show');
+});
 
 
 /*

@@ -7,6 +7,47 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+# Baby Corner - Pakaian Bayi Katun Organik
+
+Sistem e-commerce dan manajemen inventaris pakaian bayi katun organik bersertifikasi OEKO-TEX (Baby Corner).
+
+## Menjalankan Proyek
+
+1. **Clone repositori dan install dependency:**
+   ```bash
+   composer install
+   npm install
+   ```
+
+2. **Konfigurasi Environment:**
+   Salin file `.env.example` menjadi `.env` dan sesuaikan koneksi database.
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+3. **Tautkan Storage Publik (Penting untuk foto produk & profil):**
+   ```bash
+   php artisan storage:link
+   ```
+
+4. **Jalankan Migrasi Database & Seeder:**
+   ```bash
+   php artisan migrate:fresh --seed
+   ```
+
+5. **Jalankan Server Lokal:**
+   ```bash
+   php artisan serve
+   ```
+
+6. **Menjalankan Pengujian (Tests):**
+   ```bash
+   php artisan test
+   ```
+
+---
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
