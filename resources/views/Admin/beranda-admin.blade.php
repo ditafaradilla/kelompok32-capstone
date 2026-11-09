@@ -1,239 +1,241 @@
-<!DOCTYPE html>
-<html lang="id" style="">
-<head>
-    <meta charset="utf-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <meta content="web_dashboard" name="shell-type">
-    <title>Baby Corner - Admin Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;1,400&amp;display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-    <style>
-        @layer base {
-            html, body { margin: 0; padding: 0; }
-            body { overscroll-behavior: none; }
-            main>:first-child { margin-top: 0 !important; }
-            main>:last-child { margin-bottom: 0 !important; }
-        }
-        ::-webkit-scrollbar { display: none; }
-    </style>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "surface-container": "#e7eeff",
-                        "surface-container-lowest": "#ffffff",
-                        "on-surface": "#111c2c",
-                        "tertiary-fixed-dim": "#feb69a",
-                        "outline-variant": "#c0c7ce",
-                        "on-secondary-container": "#356f50",
-                        "on-background": "#111c2c",
-                        "on-secondary-fixed": "#002111",
-                        "surface": "#f9f9ff",
-                        "on-tertiary-fixed-variant": "#6b3a25",
-                        "on-primary-fixed-variant": "#004c6a",
-                        "inverse-surface": "#263142",
-                        "primary-fixed-dim": "#92cef3",
-                        "surface-variant": "#d8e3fa",
-                        "on-primary": "#ffffff",
-                        "surface-bright": "#f9f9ff",
-                        "on-surface-variant": "#40484d",
-                        "surface-container-low": "#f0f3ff",
-                        "primary": "#216586",
-                        "error-container": "#ffdad6",
-                        "primary-fixed": "#c5e7ff",
-                        "surface-container-high": "#dee8ff",
-                        "primary-container": "#6aa6ca",
-                        "on-tertiary-container": "#562916",
-                        "on-error-container": "#93000a",
-                        "on-secondary": "#ffffff",
-                        "on-tertiary": "#ffffff",
-                        "on-primary-container": "#003a52",
-                        "surface-container-highest": "#d8e3fa",
-                        "surface-tint": "#216586",
-                        "background": "#f9f9ff",
-                        "on-primary-fixed": "#001e2d",
-                        "inverse-on-surface": "#ebf1ff",
-                        "secondary-fixed-dim": "#97d4ae",
-                        "inverse-primary": "#92cef3",
-                        "tertiary-container": "#d18f75",
-                        "on-secondary-fixed-variant": "#125134",
-                        "secondary": "#2f694a",
-                        "tertiary": "#87503a",
-                        "on-error": "#ffffff",
-                        "surface-dim": "#cfdaf1",
-                        "tertiary-fixed": "#ffdbce",
-                        "error": "#ba1a1a",
-                        "outline": "#71787e",
-                        "on-tertiary-fixed": "#351001",
-                        "secondary-fixed": "#b2f1c8",
-                        "secondary-container": "#b2f1c8"
-                    },
-                    borderRadius: { DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px" },
-                    spacing: {
-                        "space-xs": "0.25rem",
-                        "space-lg": "1.5rem",
-                        "space-sm": "0.5rem",
-                        "space-md": "1rem",
-                        "space-xl": "2.5rem",
-                        margin: "2rem",
-                        "gutter-mobile": "1rem",
-                        gutter: "1.5rem",
-                        "margin-mobile": "1rem"
-                    },
-                    fontFamily: {
-                        "headline-lg-mobile": ["Plus Jakarta Sans"],
-                        "headline-sm": ["Plus Jakarta Sans"],
-                        "display-hero": ["Plus Jakarta Sans"],
-                        "body-lg": ["Plus Jakarta Sans"],
-                        "body-md": ["Plus Jakarta Sans"],
-                        "title-md": ["Plus Jakarta Sans"],
-                        "display-hero-mobile": ["Plus Jakarta Sans"],
-                        "label-md": ["Plus Jakarta Sans"],
-                        "headline-lg": ["Plus Jakarta Sans"],
-                        "label-sm": ["Plus Jakarta Sans"],
-                        "headline-md": ["Plus Jakarta Sans"]
-                    },
-                    fontSize: {
-                        "headline-lg-mobile": ["26px", { lineHeight: "34px", letterSpacing: "-0.01em", fontWeight: "600" }],
-                        "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }],
-                        "display-hero": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
-                        "body-lg": ["16px", { lineHeight: "26px", fontWeight: "400" }],
-                        "body-md": ["14px", { lineHeight: "22px", fontWeight: "400" }],
-                        "title-md": ["18px", { lineHeight: "26px", fontWeight: "600" }],
-                        "display-hero-mobile": ["32px", { lineHeight: "40px", letterSpacing: "-0.01em", fontWeight: "700" }],
-                        "label-md": ["13px", { lineHeight: "18px", letterSpacing: "0.01em", fontWeight: "600" }],
-                        "headline-lg": ["36px", { lineHeight: "44px", letterSpacing: "-0.015em", fontWeight: "700" }],
-                        "label-sm": ["11px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }],
-                        "headline-md": ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "600" }]
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-<body class="bg-surface font-body-md text-on-surface antialiased">
+@extends('Admin.layout')
 
-    <!-- ASIDE SIDEBAR -->
-    <aside class="fixed left-0 top-0 bottom-0 w-72 bg-surface-container-lowest z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
-        <div class="flex flex-col">
-            <div class="h-20 px-space-lg flex items-center justify-between">
-                <div class="flex items-center gap-space-sm">
-                    <span class="font-headline-sm text-headline-sm font-bold tracking-tight text-primary">Baby Corner</span>
-                    <span class="px-2 py-0.5 rounded-full bg-surface-container text-on-primary-container font-label-sm text-label-sm">Backoffice</span>
-                </div>
+@section('title', 'Dashboard Backoffice')
+@section('page-title', 'Dashboard Utama Inventaris')
+@section('page-subtitle', 'Pantau stok pakaian bayi, peringatan batas minimum, dan alur pemesanan pemasok')
+
+@section('content')
+<div class="flex flex-col w-full gap-8">
+
+    <!-- Welcome Banner Card -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-surface-container-lowest p-6 rounded-2xl shadow-xs border border-surface-container">
+        <div class="space-y-1">
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center justify-center w-2.5 h-2.5 rounded-full bg-secondary animate-pulse"></span>
+                <span class="text-[11px] font-bold text-secondary uppercase tracking-wider">Sistem Inventaris Aktif</span>
             </div>
-            <div class="px-space-md py-space-sm">
-                <div class="px-space-sm pb-space-xs font-label-sm text-label-sm uppercase tracking-wider text-outline">Menu Navigasi</div>
-                <nav class="flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary-container font-semibold rounded-xl">
-                    <a aria-current="page" class="flex items-center gap-3 px-space-md py-3 transition-all bg-primary-container text-on-primary-container font-semibold rounded-xl" data-path="dashboard" href="#">
-                        <span class="material-symbols-outlined text-[20px]">dashboard</span>
-                        <span>Dashboard / Beranda</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-space-md py-3 rounded-xl font-body-md text-body-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="kelola-produk" href="#">
-                        <span class="material-symbols-outlined text-[20px]">styler</span>
-                        <span>Kelola Produk (Baju Bayi)</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-space-md py-3 rounded-xl font-body-md text-body-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="pesanan-dan-transaksi" href="#">
-                        <span class="material-symbols-outlined text-[20px]">receipt_long</span>
-                        <span>Pesanan &amp; Transaksi</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-space-md py-3 rounded-xl font-body-md text-body-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="pelanggan" href="#">
-                        <span class="material-symbols-outlined text-[20px]">group</span>
-                        <span>Pelanggan</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-space-md py-3 rounded-xl font-body-md text-body-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="laporan-penjualan" href="#">
-                        <span class="material-symbols-outlined text-[20px]">analytics</span>
-                        <span>Laporan Penjualan</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-space-md py-3 rounded-xl font-body-md text-body-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="pengaturan-toko" href="#">
-                        <span class="material-symbols-outlined text-[20px]">settings</span>
-                        <span>Pengaturan Toko</span>
-                    </a>
-                </nav>
+            <h1 class="text-2xl font-bold text-on-surface tracking-tight">Selamat Datang, {{ Auth::user()->name ?? 'Admin' }}!</h1>
+            <p class="text-xs text-on-surface-variant max-w-2xl">Kelola produk baju bayi katun organik, alokasikan stok toko & gudang, serta proses penerimaan barang dari pemasok.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container-low text-on-surface text-xs font-semibold">
+                <span class="material-symbols-outlined text-base text-primary">calendar_today</span>
+                <span>{{ date('d M Y') }}</span>
             </div>
         </div>
-        <div class="p-space-md">
-            <form action="{{ route('logout') }}" method="POST">
-            @csrf
-            <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-error-container text-on-error-container text-xs font-semibold hover:opacity-90 transition-all">
-                <span class="material-symbols-outlined text-sm">logout</span>
-                <span>Keluar Admin</span>
-            </button>
-        </form>
-        </div>
-    </aside>
-
-    <!-- WRAPPER MAIN & HEADER -->
-    <div class="pl-72 flex flex-col min-h-screen">
-        
-        <!-- HEADER -->
-        <header class="fixed top-0 left-72 right-0 h-20 bg-surface/85 backdrop-blur-xl z-40 shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
-            <div class="h-20 w-full px-8 flex items-center justify-between gap-space-lg">
-                <div class="flex-1 max-w-lg">
-                    <div class="relative flex items-center">
-                        <span class="material-symbols-outlined absolute left-4 text-outline text-[20px]">search</span>
-                        <input class="w-full h-11 pl-11 pr-4 bg-surface-container-lowest rounded-xl font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary-container/40 transition-all" placeholder="Cari pesanan, nama pakaian bayi, atau SKU..." type="search">
-                    </div>
-                </div>
-                <div class="flex items-center gap-space-md">
-                    <button class="flex items-center gap-2 px-space-md h-10 rounded-full bg-primary-container text-on-primary font-label-md text-label-md hover:bg-primary transition-all shadow-[0_2px_8px_-2px_rgba(74,85,104,0.04)]" type="button">
-                        <span class="material-symbols-outlined text-[18px]">add</span>
-                        <span>Tambah Produk</span>
-                    </button>
-                    <button aria-label="Notifikasi Pesanan" class="relative w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" type="button">
-                        <span class="material-symbols-outlined text-[20px]">notifications</span>
-                        <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-tertiary-container"></span>
-                    </button>
-                    <div class="flex items-center gap-3 pl-2">
-                        <div class="flex flex-col text-right">
-                            <span class="font-label-md text-label-md font-semibold text-on-surface">{{ Auth::user()->name ?? 'Bunda Sarah' }}</span>
-                            <span class="font-label-sm text-label-sm text-outline uppercase">Admin Baby Corner</span>
-                        </div>
-                        <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                            <span class="material-symbols-outlined text-on-primary text-[18px]">person</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- MAIN CONTENT AREA -->
-        <main class="flex-1 w-full pt-28 bg-surface px-8 pb-12">
-            <div class="flex flex-col w-full gap-8">
-                
-                <!-- Welcome Banner Card -->
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-surface-container">
-                    <div class="flex flex-col gap-1">
-                        <div class="flex items-center gap-2">
-                            <span class="inline-flex items-center justify-center w-2.5 h-2.5 rounded-full bg-secondary"></span>
-                            <span class="text-xs font-semibold text-secondary uppercase tracking-wider">Sistem Backoffice Aktif</span>
-                        </div>
-                        <h1 class="font-headline-md text-headline-md text-on-surface font-semibold tracking-tight">Selamat Datang, {{ Auth::user()->name ?? 'Admin Baby Corner' }}</h1>
-                        <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">Pantau performa penjualan busana bayi, inventaris stok katun organik, dan pesanan masuk hari ini.</p>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-3">
-                        <div class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-surface-container-low text-on-surface font-label-md text-label-md">
-                            <span class="material-symbols-outlined text-[18px] text-primary">calendar_today</span>
-                            <span>{{ date('d M Y') }}</span>
-                        </div>
-                    </div>
-                </div>
-
-              
-
-        <!-- FOOTER -->
-        <footer class="w-full bg-surface-container-low py-space-md">
-            <div class="w-full px-8 flex flex-col md:flex-row items-center justify-between gap-2 text-on-surface-variant font-label-sm text-label-sm">
-                <div>© 2026 Baby Corner. Hak Cipta Dilindungi. Backoffice E-Commerce Baju Bayi.</div>
-                <div class="flex items-center gap-space-md"></div>
-            </div>
-        </footer>
-
     </div>
 
-</body>
-</html>
+    <!-- STATS CARDS -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Total Produk -->
+        <div class="bg-surface-container-lowest p-5 rounded-2xl border border-surface-container shadow-xs flex items-center justify-between">
+            <div class="space-y-1">
+                <div class="text-[11px] font-semibold text-outline uppercase tracking-wider">Total Produk</div>
+                <div class="text-2xl font-bold text-on-surface">{{ $totalProducts ?? 0 }}</div>
+                <div class="text-[11px] text-on-surface-variant">Katalog baju bayi</div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-primary-container/30 text-primary flex items-center justify-center">
+                <span class="material-symbols-outlined text-2xl">styler</span>
+            </div>
+        </div>
+
+        <!-- Total Lokasi Toko & Gudang -->
+        <div class="bg-surface-container-lowest p-5 rounded-2xl border border-surface-container shadow-xs flex items-center justify-between">
+            <div class="space-y-1">
+                <div class="text-[11px] font-semibold text-outline uppercase tracking-wider">Lokasi Toko & Gudang</div>
+                <div class="text-2xl font-bold text-on-surface">{{ $totalLocations ?? 0 }}</div>
+                <div class="text-[11px] text-on-surface-variant">Pemisahan titik stok</div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-secondary-container/50 text-secondary flex items-center justify-center">
+                <span class="material-symbols-outlined text-2xl">warehouse</span>
+            </div>
+        </div>
+
+        <!-- Stok Menipis -->
+        <div class="bg-surface-container-lowest p-5 rounded-2xl border border-surface-container shadow-xs flex items-center justify-between">
+            <div class="space-y-1">
+                <div class="text-[11px] font-semibold text-amber-700 uppercase tracking-wider">Stok Menipis</div>
+                <div class="text-2xl font-bold text-amber-600">{{ count($lowStockProducts ?? []) }}</div>
+                <div class="text-[11px] text-amber-600 font-medium">&le; batas minimum</div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center">
+                <span class="material-symbols-outlined text-2xl">warning</span>
+            </div>
+        </div>
+
+        <!-- Stok Habis -->
+        <div class="bg-surface-container-lowest p-5 rounded-2xl border border-surface-container shadow-xs flex items-center justify-between">
+            <div class="space-y-1">
+                <div class="text-[11px] font-semibold text-error uppercase tracking-wider">Stok Habis (0)</div>
+                <div class="text-2xl font-bold text-error">{{ count($outOfStockProducts ?? []) }}</div>
+                <div class="text-[11px] text-error font-medium">Perlu restock segera</div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-error-container text-on-error-container flex items-center justify-center">
+                <span class="material-symbols-outlined text-2xl">inventory</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- PERINGATAN STOK HABIS & MENIPIS (Fitur 11 Alert Section) -->
+    @if(count($outOfStockProducts ?? []) > 0 || count($lowStockProducts ?? []) > 0)
+    <div class="bg-surface-container-lowest p-6 rounded-2xl border border-amber-200/80 shadow-xs space-y-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-amber-600 text-xl">notification_important</span>
+                <h3 class="text-sm font-bold text-on-surface">Peringatan Stok Minimum (Fitur 11)</h3>
+            </div>
+            <a href="{{ route('admin.pemesanan.create') }}" class="px-3.5 py-1.5 rounded-full bg-primary text-on-primary text-xs font-semibold hover:bg-surface-tint transition-all flex items-center gap-1.5 shadow-xs">
+                <span class="material-symbols-outlined text-sm">add_shopping_cart</span>
+                <span>Pesan ke Pemasok Sekarang</span>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            @foreach($outOfStockProducts as $prod)
+                <div class="p-3.5 rounded-xl bg-red-50 border border-red-200 flex items-center justify-between text-xs">
+                    <div>
+                        <div class="font-bold text-red-900">{{ $prod->name }}</div>
+                        <div class="text-[11px] text-red-700">SKU: {{ $prod->sku }} • Varian: {{ $prod->variants ?? '-' }}</div>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-full bg-red-600 text-white font-bold text-[10px]">Stok 0</span>
+                </div>
+            @endforeach
+
+            @foreach($lowStockProducts as $prod)
+                <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between text-xs">
+                    <div>
+                        <div class="font-bold text-amber-900">{{ $prod->name }}</div>
+                        <div class="text-[11px] text-amber-700">Sisa: {{ $prod->total_stock }} pcs (Min: {{ $prod->min_stock }})</div>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-full bg-amber-500 text-white font-bold text-[10px]">Menipis</span>
+                </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
+    <!-- 4 FITUR UTAMA SHORTCUT CARDS -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Fitur 8 -->
+        <a href="{{ route('admin.produk.index') }}" class="p-5 rounded-2xl bg-surface-container-lowest border border-surface-container hover:border-primary/40 hover:shadow-md transition-all group flex flex-col justify-between h-44">
+            <div class="space-y-2">
+                <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
+                    <span class="material-symbols-outlined text-xl">styler</span>
+                </div>
+                <h4 class="text-sm font-bold text-on-surface">Fitur 8: Kelola Produk & Pemisahan Stok</h4>
+                <p class="text-[11px] text-on-surface-variant line-clamp-2">CRUD katalog baju bayi dan alokasi stok per toko/gudang.</p>
+            </div>
+            <div class="flex items-center text-xs font-semibold text-primary gap-1">
+                <span>Buka Menu</span>
+                <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+            </div>
+        </a>
+
+        <!-- Fitur 9 -->
+        <a href="{{ route('admin.lokasi.index') }}" class="p-5 rounded-2xl bg-surface-container-lowest border border-surface-container hover:border-primary/40 hover:shadow-md transition-all group flex flex-col justify-between h-44">
+            <div class="space-y-2">
+                <div class="w-10 h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center group-hover:bg-secondary group-hover:text-white transition-all">
+                    <span class="material-symbols-outlined text-xl">warehouse</span>
+                </div>
+                <h4 class="text-sm font-bold text-on-surface">Fitur 9: Pencatatan Lokasi & Stok</h4>
+                <p class="text-[11px] text-on-surface-variant line-clamp-2">Kelola master titik toko/gudang dan atur stok produk pada lokasi tertentu.</p>
+            </div>
+            <div class="flex items-center text-xs font-semibold text-secondary gap-1">
+                <span>Buka Menu</span>
+                <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+            </div>
+        </a>
+
+        <!-- Fitur 10 -->
+        <a href="{{ route('admin.pemesanan.index') }}" class="p-5 rounded-2xl bg-surface-container-lowest border border-surface-container hover:border-primary/40 hover:shadow-md transition-all group flex flex-col justify-between h-44">
+            <div class="space-y-2">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-700 flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-all">
+                    <span class="material-symbols-outlined text-xl">local_shipping</span>
+                </div>
+                <h4 class="text-sm font-bold text-on-surface">Fitur 10: Pemesanan ke Pemasok</h4>
+                <p class="text-[11px] text-on-surface-variant line-clamp-2">Catat pesanan barang (PO) baru ke konveksi/supplier baju bayi.</p>
+            </div>
+            <div class="flex items-center text-xs font-semibold text-amber-700 gap-1">
+                <span>Buka Menu</span>
+                <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+            </div>
+        </a>
+
+        <!-- Fitur 11 -->
+        <a href="{{ route('admin.penerimaan.index') }}" class="p-5 rounded-2xl bg-surface-container-lowest border border-surface-container hover:border-primary/40 hover:shadow-md transition-all group flex flex-col justify-between h-44">
+            <div class="space-y-2">
+                <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-700 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-all">
+                    <span class="material-symbols-outlined text-xl">inventory_2</span>
+                </div>
+                <h4 class="text-sm font-bold text-on-surface">Fitur 11: Penerimaan Barang & Stok</h4>
+                <p class="text-[11px] text-on-surface-variant line-clamp-2">Konfirmasi barang masuk, otomatis tambah stok, dan cek batas minimum.</p>
+            </div>
+            <div class="flex items-center text-xs font-semibold text-purple-700 gap-1">
+                <span>Buka Menu</span>
+                <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+            </div>
+        </a>
+    </div>
+
+    <!-- DAFTAR PEMESANAN TERBARU -->
+    <div class="bg-surface-container-lowest rounded-2xl border border-surface-container shadow-xs p-6 space-y-4">
+        <div class="flex items-center justify-between">
+            <div class="space-y-0.5">
+                <h3 class="text-sm font-bold text-on-surface">Riwayat Pemesanan ke Pemasok Terbaru</h3>
+                <p class="text-xs text-on-surface-variant">Catatan pesanan barang restock ke supplier</p>
+            </div>
+            <a href="{{ route('admin.pemesanan.index') }}" class="text-xs font-semibold text-primary hover:underline">Lihat Semua &rarr;</a>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="border-b border-surface-container text-outline font-semibold">
+                        <th class="py-3 px-3">No. PO</th>
+                        <th class="py-3 px-3">Pemasok</th>
+                        <th class="py-3 px-3">Tujuan Stok</th>
+                        <th class="py-3 px-3">Tanggal Pesan</th>
+                        <th class="py-3 px-3">Total Biaya</th>
+                        <th class="py-3 px-3">Status</th>
+                        <th class="py-3 px-3 text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-surface-container-low">
+                    @forelse($recentOrders ?? [] as $po)
+                    <tr class="hover:bg-surface-container-low/50 transition-colors">
+                        <td class="py-3 px-3 font-semibold text-primary">{{ $po->po_number }}</td>
+                        <td class="py-3 px-3 font-medium text-on-surface">{{ $po->supplier->name ?? '-' }}</td>
+                        <td class="py-3 px-3 text-on-surface-variant">{{ $po->targetLocation->name ?? '-' }}</td>
+                        <td class="py-3 px-3 text-on-surface-variant">{{ date('d M Y', strtotime($po->order_date)) }}</td>
+                        <td class="py-3 px-3 font-semibold text-on-surface">Rp {{ number_format($po->total_amount, 0, ',', '.') }}</td>
+                        <td class="py-3 px-3">
+                            @if($po->status === 'received')
+                                <span class="px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-semibold text-[10px]">Barang Diterima</span>
+                            @else
+                                <span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-semibold text-[10px]">Menunggu Barang</span>
+                            @endif
+                        </td>
+                        <td class="py-3 px-3 text-right">
+                            @if($po->status === 'pending')
+                                <a href="{{ route('admin.penerimaan.show', $po->id) }}" class="px-3 py-1 rounded-lg bg-primary text-on-primary text-[11px] font-semibold hover:bg-surface-tint transition-all">
+                                    Proses Terima
+                                </a>
+                            @else
+                                <a href="{{ route('admin.pemesanan.show', $po->id) }}" class="px-3 py-1 rounded-lg bg-surface-container text-on-surface text-[11px] font-semibold hover:bg-surface-container-high transition-all">
+                                    Detail
+                                </a>
+                            @endif
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="py-6 text-center text-outline">Belum ada data pemesanan.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+@endsection
