@@ -262,12 +262,58 @@
             </div>
 
             <!-- ACTION BUTTONS & SLOTS -->
-            <div class="space-y-3 pt-2">
-                {{-- SLOT FRI-03: tombol tambah ke keranjang --}}
-                <button type="button" disabled class="w-full h-12 rounded-2xl bg-surface-container text-outline cursor-not-allowed font-semibold text-xs flex items-center justify-center gap-2 transition-all">
-                    <span class="material-symbols-outlined text-base">shopping_bag</span>
-                    <span>Tambah ke Keranjang (Segera hadir)</span>
-                </button>
+            <div class="space-y-4 pt-2">
+                {{-- SLOT FRI-03: Formulir Tambah ke Keranjang --}}
+                <form action="{{ route('keranjang.store') }}" method="POST" class="space-y-4">
+                    @csrf
+                    <input type="hidden" name="product_variant_id" :value="currentVariant ? currentVariant.id : ''">
+
+                    <!-- Kontrol Input Jumlah / Qty (Default 1, Maksimal = Stok Tersedia) -->
+                    <div class="flex items-center gap-4">
+                        <label class="text-xs font-bold text-on-surface flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-sm text-outline">pin</span>
+                            <span>Jumlah:</span>
+                        </label>
+
+                        <div class="flex items-center border border-surface-container rounded-xl overflow-hidden bg-surface-container-low h-10 shadow-xs">
+                            <button type="button" 
+                                    @click="decreaseQty()" 
+                                    :disabled="qty <= 1 || isOutOfStock" 
+                                    class="w-10 h-full flex items-center justify-center text-on-surface hover:bg-surface-container transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                    title="Kurangi jumlah">
+                                <span class="material-symbols-outlined text-sm font-bold">remove</span>
+                            </button>
+                            <input type="number" 
+                                   name="jumlah" 
+                                   x-model.number="qty" 
+                                   @input="validateQty()" 
+                                   min="1" 
+                                   :max="currentStock" 
+                                   :disabled="isOutOfStock" 
+                                   class="w-14 text-center text-xs font-bold text-on-surface bg-transparent border-0 focus:outline-none focus:ring-0">
+                            <button type="button" 
+                                    @click="increaseQty()" 
+                                    :disabled="qty >= currentStock || isOutOfStock" 
+                                    class="w-10 h-full flex items-center justify-center text-on-surface hover:bg-surface-container transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                    title="Tambah jumlah">
+                                <span class="material-symbols-outlined text-sm font-bold">add</span>
+                            </button>
+                        </div>
+
+                        <span class="text-xs text-on-surface-variant" x-show="currentStock > 0">
+                            (Maks. <span class="font-bold text-on-surface" x-text="currentStock"></span> pcs)
+                        </span>
+                    </div>
+
+                    <!-- Tombol Tambah ke Keranjang -->
+                    <button type="submit" 
+                            :disabled="!currentVariant || isOutOfStock" 
+                            :class="(!currentVariant || isOutOfStock) ? 'bg-surface-container text-outline cursor-not-allowed' : 'bg-primary hover:bg-surface-tint text-on-primary shadow-md cursor-pointer'"
+                            class="w-full h-12 rounded-2xl font-semibold text-xs flex items-center justify-center gap-2 transition-all">
+                        <span class="material-symbols-outlined text-base">shopping_bag</span>
+                        <span x-text="isOutOfStock ? 'Stok Varian Habis' : 'Tambah ke Keranjang'"></span>
+                    </button>
+                </form>
 
                 {{-- SLOT FRI-16: tombol WhatsApp --}}
                 <!-- Slot untuk tombol pemesanan WhatsApp cepat -->
@@ -320,6 +366,7 @@
             alternativeSize: config.alternativeSize || '',
             selectedSize: '',
             selectedColor: '',
+            qty: 1,
             
             init() {
                 // Pilih ukuran otomatis: prioritaskan rekomendasi ukuran jika ada stoknya
@@ -337,6 +384,7 @@
                 const available = this.variants.filter(v => v.ukuran === targetSize);
                 const inStockColor = available.find(v => v.stok_tersedia > 0);
                 this.selectedColor = inStockColor ? inStockColor.warna : (available[0] ? available[0].warna : '');
+                this.qty = 1;
             },
 
             get availableColorsForSelectedSize() {
@@ -357,6 +405,23 @@
                 return this.currentStock <= 0;
             },
 
+            increaseQty() {
+                if (this.qty < this.currentStock) {
+                    this.qty++;
+                }
+            },
+
+            decreaseQty() {
+                if (this.qty > 1) {
+                    this.qty--;
+                }
+            },
+
+            validateQty() {
+                if (this.qty < 1 || isNaN(this.qty)) this.qty = 1;
+                if (this.qty > this.currentStock && this.currentStock > 0) this.qty = this.currentStock;
+            },
+
             selectSize(size) {
                 this.selectedSize = size;
                 const colors = this.variants.filter(v => v.ukuran === size);
@@ -367,11 +432,13 @@
                     const inStock = colors.find(v => v.stok_tersedia > 0);
                     this.selectedColor = inStock ? inStock.warna : (colors[0] ? colors[0].warna : '');
                 }
+                this.qty = 1;
             },
 
             selectColor(color, stock) {
                 if (stock <= 0) return;
                 this.selectedColor = color;
+                this.qty = 1;
             }
         };
     }

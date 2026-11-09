@@ -121,11 +121,16 @@
                     </button>
                 </div>
 
-                {{-- Slot FRI-03: Ikon Keranjang Belanja (Tanpa fungsi dulu) --}}
+                <!-- Keranjang Belanja (FRI-03) -->
                 <div class="relative">
-                    <button type="button" class="w-9 h-9 rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors shadow-xs" title="Keranjang Belanja (Segera Hadir)">
+                    <a href="{{ route('keranjang.index') }}" class="w-9 h-9 rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors shadow-xs relative" title="Keranjang Belanja">
                         <span class="material-symbols-outlined text-lg">shopping_bag</span>
-                    </button>
+                        @if(!empty($cartItemCount) && $cartItemCount > 0)
+                            <span id="nav-cart-badge" class="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center px-1 shadow-xs">
+                                {{ $cartItemCount }}
+                            </span>
+                        @endif
+                    </a>
                 </div>
 
                 <!-- User Profile & Dropdown Navigation -->
@@ -193,14 +198,41 @@
             </a>
             <a href="{{ route('panduan.ukuran') }}" class="flex items-center gap-1 font-semibold {{ request()->routeIs('panduan.ukuran') ? 'text-primary' : 'text-on-surface-variant' }}">
                 <span class="material-symbols-outlined text-sm">straighten</span>
-                <span>Panduan Ukuran</span>
+                <span>Panduan</span>
+            </a>
+            <a href="{{ route('keranjang.index') }}" class="flex items-center gap-1 font-semibold {{ request()->routeIs('keranjang.*') ? 'text-primary' : 'text-on-surface-variant' }} relative">
+                <span class="material-symbols-outlined text-sm">shopping_bag</span>
+                <span>Keranjang</span>
+                @if(!empty($cartItemCount) && $cartItemCount > 0)
+                    <span class="min-w-[16px] h-4 rounded-full bg-primary text-white text-[9px] font-bold flex items-center justify-center px-1">
+                        {{ $cartItemCount }}
+                    </span>
+                @endif
             </a>
         </div>
     </header>
 
     <!-- FLASH MESSAGES -->
     <div class="w-full pt-28 md:pt-24">
-        @if(session('success'))
+        @if(session('cart_success'))
+            <div class="max-w-[1280px] mx-auto px-4 lg:px-8 mb-4">
+                <div class="p-4 rounded-2xl bg-secondary-container/80 border border-secondary text-on-surface text-xs font-medium flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                    <div class="flex items-center gap-2.5">
+                        <span class="material-symbols-outlined text-secondary text-xl">shopping_cart</span>
+                        <div>
+                            <span class="font-bold text-secondary">Berhasil ditambahkan ke keranjang!</span>
+                            <span class="text-on-surface-variant ml-1">{{ session('cart_success')['product_name'] }} ({{ session('cart_success')['variant'] }}) sebanyak {{ session('cart_success')['jumlah'] }} pcs.</span>
+                        </div>
+                    </div>
+                    <a href="{{ route('keranjang.index') }}" class="px-4 py-2 rounded-xl bg-primary hover:bg-surface-tint text-on-primary font-bold text-xs shrink-0 text-center shadow-xs transition-all flex items-center justify-center gap-1.5">
+                        <span>Lihat Keranjang</span>
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+        @endif
+
+        @if(session('success') && !session('cart_success'))
             <div class="max-w-[1280px] mx-auto px-4 lg:px-8 mb-4">
                 <div class="p-4 rounded-2xl bg-secondary-container/60 border border-secondary text-secondary text-xs font-semibold flex items-center gap-2 shadow-xs">
                     <span class="material-symbols-outlined text-base">check_circle</span>

@@ -31,6 +31,11 @@ class ProductVariant extends Model
         return $this->hasMany(PurchaseOrderItem::class, 'product_variant_id');
     }
 
+    public function cartItems()
+    {
+        return $this->hasMany(CartItem::class, 'product_variant_id');
+    }
+
     public function locations()
     {
         return $this->belongsToMany(Location::class, 'product_stocks', 'product_variant_id', 'location_id')

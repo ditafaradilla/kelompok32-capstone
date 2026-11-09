@@ -19,6 +19,7 @@ use App\Http\Controllers\User\CatalogController;
 use App\Http\Controllers\User\SizeGuideController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\BabyController;
+use App\Http\Controllers\User\CartController;
 use App\Http\Middleware\EnsureUserIsAdmin;
 
 /*
@@ -97,6 +98,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/produk', [CatalogController::class, 'index'])->name('produk.index');
     Route::get('/produk/{product}', [CatalogController::class, 'show'])->name('produk.show');
     Route::get('/panduan-ukuran', [SizeGuideController::class, 'index'])->name('panduan.ukuran');
+
+    // Keranjang Belanja (FRI-03)
+    Route::get('/keranjang', [CartController::class, 'index'])->name('keranjang.index');
+    Route::post('/keranjang', [CartController::class, 'store'])->name('keranjang.store');
+    Route::delete('/keranjang', [CartController::class, 'clear'])->name('keranjang.clear');
+    Route::patch('/keranjang/{item}', [CartController::class, 'update'])->name('keranjang.update');
+    Route::delete('/keranjang/{item}', [CartController::class, 'destroy'])->name('keranjang.destroy');
 });
 
 

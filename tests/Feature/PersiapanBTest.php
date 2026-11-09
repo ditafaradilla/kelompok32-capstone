@@ -119,7 +119,7 @@ class PersiapanBTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee($product->name);
-        $response->assertSee('Tambah ke Keranjang (Segera hadir)');
+        $response->assertSee('Tambah ke Keranjang');
         $response->assertSee('Pilih Ukuran');
     }
 
