@@ -20,7 +20,9 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start" 
          x-data="variantSelector({
              variants: {{ Js::from($variantsData) }},
-             productPrice: {{ (float) $product->price }}
+             productPrice: {{ (float) $product->price }},
+             recommendedSize: '{{ $recommendation['ukuran_utama'] ?? '' }}',
+             alternativeSize: '{{ $recommendation['alternatif'] ?? '' }}'
          })">
         
         <!-- Kolom Kiri: Galeri Foto Produk -->
@@ -42,7 +44,7 @@
                 </span>
             </div>
 
-            <!-- Jaminan Kualitas Kecil di Bawah Foto -->
+            <!-- Jaminan Kualitas di Bawah Foto -->
             <div class="grid grid-cols-2 gap-3 text-[11px] text-on-surface-variant">
                 <div class="p-3 rounded-2xl bg-surface-container-low flex items-center gap-2">
                     <span class="material-symbols-outlined text-secondary text-base shrink-0">verified</span>
@@ -55,7 +57,7 @@
             </div>
         </div>
 
-        <!-- Kolom Kanan: Informasi & Pemilih Varian -->
+        <!-- Kolom Kanan: Informasi, Rekomendasi Ukuran & Pemilih Varian -->
         <div class="lg:col-span-7 bg-surface-container-lowest rounded-3xl p-6 sm:p-8 border border-surface-container shadow-sm space-y-6">
             
             <!-- Judul & Harga -->
@@ -73,19 +75,117 @@
                 </div>
             </div>
 
+            <!-- SLOT FRI-01: Rekomendasi Ukuran -->
+            {{-- SLOT FRI-01: rekomendasi ukuran --}}
+            @if($baby && $recommendation)
+                @php
+                    $recSize = $recommendation['ukuran_utama'];
+                    $altSize = $recommendation['alternatif'];
+                    $hasRecInProduct = $recSize ? ($product->variants->where('ukuran', $recSize)->count() > 0) : false;
+                    $recStockInProduct = $recSize ? $product->variants->where('ukuran', $recSize)->sum(fn($v) => $v->stokTersedia()) : 0;
+                    $hasAltInProduct = $altSize ? ($product->variants->where('ukuran', $altSize)->count() > 0) : false;
+                    $altStockInProduct = $altSize ? $product->variants->where('ukuran', $altSize)->sum(fn($v) => $v->stokTersedia()) : 0;
+                @endphp
+
+                <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-primary/10 via-primary-fixed/20 to-surface-container-low border border-primary/20 space-y-3">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shrink-0 shadow-xs">
+                                <span class="material-symbols-outlined text-sm">child_care</span>
+                            </div>
+                            <div>
+                                <h3 class="text-xs sm:text-sm font-bold text-on-surface">
+                                    Rekomendasi untuk {{ $baby->nama_bayi }}
+                                </h3>
+                                <p class="text-[11px] text-on-surface-variant">
+                                    Usia: {{ $baby->usia_bulan }} bulan • Berat: {{ $baby->berat_badan ? $baby->berat_badan . ' kg' : '-' }} • Tinggi: {{ $baby->tinggi_badan ? $baby->tinggi_badan . ' cm' : '-' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <a href="{{ route('profile.edit', ['redirect' => request()->getRequestUri()]) }}" class="text-[11px] text-primary hover:underline font-semibold shrink-0 flex items-center gap-0.5">
+                            <span>Ubah data bayi</span>
+                            <span class="material-symbols-outlined text-xs">edit</span>
+                        </a>
+                    </div>
+
+                    @if($recommendation['status'] === 'di_luar_rentang')
+                        <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 leading-relaxed">
+                            {{ $recommendation['alasan'] }}
+                        </div>
+                    @else
+                        <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+                            <div class="flex items-baseline gap-2.5">
+                                <span class="text-xs font-semibold text-outline">Ukuran Disarankan:</span>
+                                <span class="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">
+                                    {{ $recSize }}
+                                </span>
+                                <span class="px-2 py-0.5 rounded-full {{ $recommendation['status'] === 'batas' ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800' }} text-[10px] font-bold">
+                                    {{ $recommendation['status'] === 'batas' ? 'Naik 1 Ukuran' : 'Pas' }}
+                                </span>
+                            </div>
+
+                            @if($altSize)
+                                <div class="text-[11px] text-on-surface-variant bg-white/80 px-2.5 py-1 rounded-lg border border-surface-container">
+                                    Alternatif: <strong class="text-on-surface">{{ $altSize }}</strong> (jika ingin lebih longgar)
+                                </div>
+                            @endif
+                        </div>
+
+                        <p class="text-xs text-on-surface leading-relaxed">
+                            {{ $recommendation['alasan'] }}
+                        </p>
+
+                        <!-- Pengecekan Ketersediaan Ukuran Rekomendasi di Produk Ini -->
+                        @if(!$hasRecInProduct || $recStockInProduct <= 0)
+                            <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
+                                <div class="font-bold flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm text-amber-600">info</span>
+                                    <span>Ukuran {{ $recSize }} sedang tidak tersedia pada produk ini.</span>
+                                </div>
+                                @if($hasAltInProduct && $altStockInProduct > 0)
+                                    <p class="text-amber-800">
+                                        Anda dapat memilih ukuran alternatif <strong>{{ $altSize }}</strong> yang saat ini tersedia (<span class="font-semibold">{{ $altStockInProduct }} pcs</span>).
+                                    </p>
+                                @endif
+                            </div>
+                        @endif
+                    @endif
+                </div>
+
+            @else
+                <!-- Ajakan untuk user yang belum mengisi data bayi -->
+                <div class="p-4 rounded-2xl bg-surface-container-low border border-surface-container flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-lg">child_care</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-on-surface">Isi data bayi untuk mendapat rekomendasi ukuran</h4>
+                            <p class="text-[11px] text-on-surface-variant">Sistem kami akan memilihkan ukuran pakaian yang paling pas otomatis.</p>
+                        </div>
+                    </div>
+                    <a href="{{ route('profile.edit', ['redirect' => request()->getRequestUri()]) }}" class="px-4 py-2 rounded-xl bg-primary hover:bg-surface-tint text-on-primary text-xs font-semibold shrink-0 text-center shadow-xs transition-all">
+                        Isi Data Bayi Sekarang
+                    </a>
+                </div>
+            @endif
+
             <!-- Pemilih Varian (Ukuran & Warna) -->
-            <div class="space-y-5">
+            <div class="space-y-5 pt-2">
                 
                 <!-- 1. Pemilih Ukuran -->
                 <div class="space-y-2">
                     <div class="flex items-center justify-between">
                         <label class="text-xs font-bold text-on-surface flex items-center gap-1.5">
                             <span class="material-symbols-outlined text-sm text-primary">straighten</span>
-                            <span>Pilih Ukuran: <span class="text-primary" x-text="selectedSize"></span></span>
+                            <span>Pilih Ukuran: <span class="text-primary font-bold" x-text="selectedSize"></span></span>
                         </label>
 
-                        {{-- SLOT FRI-01: rekomendasi ukuran --}}
-                        <!-- Slot untuk tombol/panduan rekomendasi ukuran bayi otomatis -->
+                        <a href="{{ route('panduan.ukuran') }}" class="text-[11px] text-primary hover:underline font-semibold flex items-center gap-0.5">
+                            <span>Panduan Ukuran</span>
+                            <span class="material-symbols-outlined text-xs">open_in_new</span>
+                        </a>
                     </div>
 
                     <div class="flex flex-wrap gap-2">
@@ -95,8 +195,14 @@
                                     :class="selectedSize === size 
                                         ? 'border-primary bg-primary/10 text-primary font-bold shadow-xs' 
                                         : 'border-surface-container bg-surface-container-low text-on-surface hover:bg-surface-container'"
-                                    class="px-3.5 py-2 rounded-xl border text-xs transition-all cursor-pointer flex items-center gap-1">
+                                    class="px-3.5 py-2 rounded-xl border text-xs transition-all cursor-pointer flex items-center gap-1.5 relative">
                                 <span x-text="size"></span>
+                                <!-- Badge Disarankan jika sama dengan rekomendasi -->
+                                <template x-if="recommendedSize && size === recommendedSize">
+                                    <span class="px-1.5 py-0.5 rounded-full bg-primary text-white text-[9px] font-bold">
+                                        Disarankan
+                                    </span>
+                                </template>
                             </button>
                         </template>
                     </div>
@@ -106,7 +212,7 @@
                 <div class="space-y-2" x-show="availableColorsForSelectedSize.length > 0">
                     <label class="text-xs font-bold text-on-surface flex items-center gap-1.5">
                         <span class="material-symbols-outlined text-sm text-secondary">palette</span>
-                        <span>Pilih Warna: <span class="text-secondary" x-text="selectedColor"></span></span>
+                        <span>Pilih Warna: <span class="text-secondary font-bold" x-text="selectedColor"></span></span>
                     </label>
 
                     <div class="flex flex-wrap gap-2">
@@ -210,19 +316,27 @@
         return {
             variants: config.variants,
             sizes: [...new Set(config.variants.map(v => v.ukuran).filter(Boolean))],
+            recommendedSize: config.recommendedSize || '',
+            alternativeSize: config.alternativeSize || '',
             selectedSize: '',
             selectedColor: '',
             
             init() {
-                const inStockVariant = this.variants.find(v => v.stok_tersedia > 0);
-                if (inStockVariant) {
-                    this.selectedSize = inStockVariant.ukuran;
-                    this.selectedColor = inStockVariant.warna;
-                } else if (this.sizes.length > 0) {
-                    this.selectedSize = this.sizes[0];
-                    const firstForSize = this.variants.find(v => v.ukuran === this.selectedSize);
-                    this.selectedColor = firstForSize ? firstForSize.warna : '';
+                // Pilih ukuran otomatis: prioritaskan rekomendasi ukuran jika ada stoknya
+                let targetSize = '';
+                if (this.recommendedSize && this.variants.some(v => v.ukuran === this.recommendedSize && v.stok_tersedia > 0)) {
+                    targetSize = this.recommendedSize;
+                } else if (this.alternativeSize && this.variants.some(v => v.ukuran === this.alternativeSize && v.stok_tersedia > 0)) {
+                    targetSize = this.alternativeSize;
+                } else {
+                    const inStockVariant = this.variants.find(v => v.stok_tersedia > 0);
+                    targetSize = inStockVariant ? inStockVariant.ukuran : (this.sizes[0] || '');
                 }
+
+                this.selectedSize = targetSize;
+                const available = this.variants.filter(v => v.ukuran === targetSize);
+                const inStockColor = available.find(v => v.stok_tersedia > 0);
+                this.selectedColor = inStockColor ? inStockColor.warna : (available[0] ? available[0].warna : '');
             },
 
             get availableColorsForSelectedSize() {
@@ -263,4 +377,3 @@
     }
 </script>
 @endpush
-

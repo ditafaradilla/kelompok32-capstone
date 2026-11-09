@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\ForecastController;
 use App\Http\Controllers\Admin\SalesDashboardController;
 use App\Http\Controllers\User\CatalogController;
+use App\Http\Controllers\User\SizeGuideController;
 use App\Http\Middleware\EnsureUserIsAdmin;
 
 /*
@@ -93,6 +94,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [CatalogController::class, 'home'])->name('dashboard');
     Route::get('/produk', [CatalogController::class, 'index'])->name('produk.index');
     Route::get('/produk/{product}', [CatalogController::class, 'show'])->name('produk.show');
+    Route::get('/panduan-ukuran', [SizeGuideController::class, 'index'])->name('panduan.ukuran');
 });
 
 
@@ -187,6 +189,43 @@ Route::post('/dashboard/edit-profil', function (Request $request) {
     $user->baby_height = $request->baby_height;
 
     $user->save();
+
+    // Sinkronisasi sementara ke tabel babies (FRI-01)
+    if ($request->filled('baby_name')) {
+        $months = 0;
+        if (!empty($request->baby_age) && preg_match('/(\d+)/', $request->baby_age, $matches)) {
+            $months = (int) $matches[1];
+        }
+
+        $birthDate = \Carbon\Carbon::now()->subMonths($months)->toDateString();
+        if ($request->filled('tanggal_lahir')) {
+            $birthDate = $request->tanggal_lahir;
+        }
+
+        $cleanWeight = !empty($request->baby_weight) ? (float) str_replace(',', '.', preg_replace('/[^\d.,]/', '', $request->baby_weight)) : 5.0;
+        $cleanHeight = !empty($request->baby_height) ? (float) str_replace(',', '.', preg_replace('/[^\d.,]/', '', $request->baby_height)) : 55.0;
+        $gender = ($request->gender === 'perempuan') ? 'perempuan' : 'laki-laki';
+
+        \App\Models\Baby::updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'nama_bayi'     => $request->baby_name,
+                'tanggal_lahir' => $birthDate,
+                'jenis_kelamin' => $gender,
+                'berat_badan'   => $cleanWeight,
+                'tinggi_badan'  => $cleanHeight,
+            ]
+        );
+    }
+
+    // Validasi redirect hanya ke URL internal (tolak redirect eksternal)
+    $redirectUrl = $request->input('redirect');
+    if ($redirectUrl && is_string($redirectUrl)) {
+        $parsed = parse_url($redirectUrl);
+        if (!isset($parsed['host']) && str_starts_with($redirectUrl, '/') && !str_starts_with($redirectUrl, '//')) {
+            return redirect($redirectUrl)->with('success', 'Profil dan data si kecil berhasil disimpan!');
+        }
+    }
 
     return redirect()->route('profile.edit')->with('success', 'Perubahan profil berhasil disimpan!');
 })->name('profile.update')->middleware('auth');

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\SizeGuide;
+use App\Services\SizeRecommender;
 use Illuminate\Http\Request;
 
 class CatalogController extends Controller
@@ -74,7 +75,7 @@ class CatalogController extends Controller
     /**
      * Tampilkan Halaman Detail Produk & Pemilih Varian
      */
-    public function show(Product $product)
+    public function show(Product $product, SizeRecommender $sizeRecommender)
     {
         $product->load(['variants.stocks.location']);
 
@@ -86,6 +87,11 @@ class CatalogController extends Controller
             ->get();
 
         $sizeGuides = SizeGuide::all();
+
+        // Data bayi & rekomendasi ukuran (FRI-01)
+        $user = auth()->user();
+        $baby = $user ? $user->baby : null;
+        $recommendation = $baby ? $sizeRecommender->recommend($baby) : null;
 
         $variantsData = $product->variants->map(function ($v) {
             return [
@@ -99,7 +105,7 @@ class CatalogController extends Controller
             ];
         });
 
-        return view('User.detail-produk', compact('product', 'relatedProducts', 'sizeGuides', 'variantsData'));
+        return view('User.detail-produk', compact('product', 'relatedProducts', 'sizeGuides', 'variantsData', 'baby', 'recommendation'));
     }
 }
 

@@ -14,8 +14,10 @@
     <!-- Profile Form Card -->
     <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data" class="bg-surface-container-lowest rounded-3xl p-6 sm:p-10 shadow-sm border border-surface-container space-y-8">
         @csrf
+        <input type="hidden" name="redirect" value="{{ request('redirect') }}" />
 
         @php
+            $baby = Auth::user()->baby;
             $nameVal = Auth::user()->name ?? 'User';
             $words = explode(' ', trim($nameVal));
             $initials = '';
@@ -23,6 +25,20 @@
                 $initials = strtoupper(substr($words[0], 0, 1) . substr($words[1], 0, 1));
             } else {
                 $initials = strtoupper(substr($nameVal, 0, 2));
+            }
+
+            $currentBabyName = old('baby_name', $baby?->nama_bayi ?? Auth::user()->baby_name ?? '');
+            $currentGender = old('gender', $baby?->jenis_kelamin ?? Auth::user()->gender ?? '');
+            $currentWeight = old('baby_weight', $baby?->berat_badan ?? Auth::user()->baby_weight ?? '');
+            $currentHeight = old('baby_height', $baby?->tinggi_badan ?? Auth::user()->baby_height ?? '');
+            
+            $currentAge = old('baby_age', Auth::user()->baby_age ?? '');
+            if (empty($currentAge) && $baby && $baby->usia_bulan !== null) {
+                $m = $baby->usia_bulan;
+                if ($m <= 3) $currentAge = '0 -3 Bulan';
+                elseif ($m <= 6) $currentAge = '4 - 6 Bulan';
+                elseif ($m <= 12) $currentAge = '6 - 12 Bulan';
+                else $currentAge = '1 - 3 Tahun';
             }
         @endphp
 
@@ -107,7 +123,7 @@
                         <label class="block text-xs font-semibold text-on-surface mb-1.5">Nama Panggilan Si Kecil</label>
                         <div class="relative flex items-center">
                             <span class="material-symbols-outlined absolute left-3.5 text-outline text-sm">sentiment_satisfied</span>
-                            <input type="text" name="baby_name" value="{{ old('baby_name', Auth::user()->baby_name ?? '') }}" placeholder="Masukkan nama panggilan si kecil..." class="w-full h-11 pl-10 pr-4 bg-surface-container-lowest text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0" />
+                            <input type="text" name="baby_name" value="{{ $currentBabyName }}" placeholder="Masukkan nama panggilan si kecil..." class="w-full h-11 pl-10 pr-4 bg-surface-container-lowest text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0" />
                         </div>
                     </div>
 
@@ -116,15 +132,15 @@
                         <div class="grid grid-cols-2 gap-2 h-11">
                             
                             <!-- Opsi Laki-laki -->
-                            <label class="flex items-center justify-center gap-2 rounded-xl {{ (old('gender', Auth::user()->gender ?? '') == 'laki-laki') ? 'bg-primary-fixed text-on-primary-fixed shadow-xs' : 'bg-surface-container-lowest text-on-surface-variant' }} hover:bg-surface-container cursor-pointer text-xs font-semibold select-none transition-all">
-                                <input type="radio" name="gender" value="laki-laki" class="hidden peer" {{ (old('gender', Auth::user()->gender ?? '') == 'laki-laki') ? 'checked' : '' }} />
+                            <label class="flex items-center justify-center gap-2 rounded-xl {{ ($currentGender == 'laki-laki') ? 'bg-primary-fixed text-on-primary-fixed shadow-xs' : 'bg-surface-container-lowest text-on-surface-variant' }} hover:bg-surface-container cursor-pointer text-xs font-semibold select-none transition-all">
+                                <input type="radio" name="gender" value="laki-laki" class="hidden peer" {{ ($currentGender == 'laki-laki') ? 'checked' : '' }} />
                                 <span class="material-symbols-outlined text-sm">male</span>
                                 <span>Laki-laki</span>
                             </label>
                             
                             <!-- Opsi Perempuan -->
-                            <label class="flex items-center justify-center gap-2 rounded-xl {{ (old('gender', Auth::user()->gender ?? '') == 'perempuan') ? 'bg-tertiary-fixed text-on-tertiary-fixed shadow-xs' : 'bg-surface-container-lowest text-on-surface-variant' }} hover:bg-surface-container cursor-pointer text-xs font-semibold select-none transition-all">
-                                <input type="radio" name="gender" value="perempuan" class="hidden peer" {{ (old('gender', Auth::user()->gender ?? '') == 'perempuan') ? 'checked' : '' }} />
+                            <label class="flex items-center justify-center gap-2 rounded-xl {{ ($currentGender == 'perempuan') ? 'bg-tertiary-fixed text-on-tertiary-fixed shadow-xs' : 'bg-surface-container-lowest text-on-surface-variant' }} hover:bg-surface-container cursor-pointer text-xs font-semibold select-none transition-all">
+                                <input type="radio" name="gender" value="perempuan" class="hidden peer" {{ ($currentGender == 'perempuan') ? 'checked' : '' }} />
                                 <span class="material-symbols-outlined text-sm">female</span>
                                 <span>Perempuan</span>
                             </label>
@@ -138,11 +154,11 @@
                     <div class="relative flex items-center">
                         <span class="material-symbols-outlined absolute left-3.5 text-outline text-sm">calendar_month</span>
                         <select name="baby_age" class="w-full h-11 pl-10 pr-8 bg-surface-container-lowest text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0 appearance-none">
-                            <option value="" disabled {{ empty(old('baby_age', Auth::user()->baby_age ?? '')) ? 'selected' : '' }}>Pilih usia si kecil</option>
-                            <option value="0 -3 Bulan" {{ (old('baby_age', Auth::user()->baby_age ?? '') == '0 -3 Bulan') ? 'selected' : '' }}>0 -3 Bulan</option>
-                            <option value="4 - 6 Bulan" {{ (old('baby_age', Auth::user()->baby_age ?? '') == '4 - 6 Bulan') ? 'selected' : '' }}>4 - 6 Bulan</option>
-                            <option value="6 - 12 Bulan" {{ (old('baby_age', Auth::user()->baby_age ?? '') == '6 - 12 Bulan') ? 'selected' : '' }}>6 - 12 Bulan</option>
-                            <option value="1 - 3 Tahun" {{ (old('baby_age', Auth::user()->baby_age ?? '') == '1 - 3 Tahun') ? 'selected' : '' }}>1 - 3 Tahun</option>
+                            <option value="" disabled {{ empty($currentAge) ? 'selected' : '' }}>Pilih usia si kecil</option>
+                            <option value="0 -3 Bulan" {{ ($currentAge == '0 -3 Bulan') ? 'selected' : '' }}>0 -3 Bulan</option>
+                            <option value="4 - 6 Bulan" {{ ($currentAge == '4 - 6 Bulan') ? 'selected' : '' }}>4 - 6 Bulan</option>
+                            <option value="6 - 12 Bulan" {{ ($currentAge == '6 - 12 Bulan') ? 'selected' : '' }}>6 - 12 Bulan</option>
+                            <option value="1 - 3 Tahun" {{ ($currentAge == '1 - 3 Tahun') ? 'selected' : '' }}>1 - 3 Tahun</option>
                         </select>
                         <span class="material-symbols-outlined absolute right-3 text-outline text-sm pointer-events-none">expand_more</span>
                     </div>
@@ -156,7 +172,7 @@
                         </div>
                         <div class="relative flex items-center">
                             <span class="material-symbols-outlined absolute left-3.5 text-outline text-sm">monitor_weight</span>
-                            <input type="text" name="baby_weight" value="{{ old('baby_weight', Auth::user()->baby_weight ?? '') }}" placeholder="Contoh: 6.5" class="w-full h-11 pl-10 pr-10 bg-surface-container-lowest text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0" />
+                            <input type="text" name="baby_weight" value="{{ $currentWeight }}" placeholder="Contoh: 6.5" class="w-full h-11 pl-10 pr-10 bg-surface-container-lowest text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0" />
                             <span class="absolute right-3.5 text-xs text-outline font-medium">kg</span>
                         </div>
                     </div>
@@ -168,7 +184,7 @@
                         </div>
                         <div class="relative flex items-center">
                             <span class="material-symbols-outlined absolute left-3.5 text-outline text-sm">height</span>
-                            <input type="text" name="baby_height" value="{{ old('baby_height', Auth::user()->baby_height ?? '') }}" placeholder="Contoh: 65" class="w-full h-11 pl-10 pr-10 bg-surface-container-lowest text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0" />
+                            <input type="text" name="baby_height" value="{{ $currentHeight }}" placeholder="Contoh: 65" class="w-full h-11 pl-10 pr-10 bg-surface-container-lowest text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0" />
                             <span class="absolute right-3.5 text-xs text-outline font-medium">cm</span>
                         </div>
                     </div>
@@ -178,7 +194,7 @@
 
         <!-- 4. Action Buttons -->
         <div class="flex items-center justify-center gap-3 pt-6">
-            <a href="{{ route('dashboard') }}" class="px-8 h-11 rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface font-semibold text-xs flex items-center justify-center transition-all">
+            <a href="{{ request('redirect') ?: route('dashboard') }}" class="px-8 h-11 rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface font-semibold text-xs flex items-center justify-center transition-all">
                 Batal
             </a>
             <button type="submit" class="px-10 h-11 rounded-full bg-primary hover:bg-surface-tint text-on-primary font-semibold text-xs flex items-center justify-center shadow-md transition-all cursor-pointer">

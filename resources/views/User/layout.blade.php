@@ -105,7 +105,7 @@
                     <a href="{{ route('produk.index') }}" class="text-xs font-semibold {{ request()->routeIs('produk.*') ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface' }} transition-colors">
                         Katalog Produk
                     </a>
-                    <a href="{{ route('produk.index') }}" class="text-xs text-on-surface-variant hover:text-on-surface transition-colors" title="Panduan Ukuran (FRI-01)">
+                    <a href="{{ route('panduan.ukuran') }}" class="text-xs font-semibold {{ request()->routeIs('panduan.ukuran') ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface' }} transition-colors">
                         Panduan Ukuran
                     </a>
                 </nav>
@@ -177,7 +177,7 @@
                 <span class="material-symbols-outlined text-sm">grid_view</span>
                 <span>Katalog</span>
             </a>
-            <a href="{{ route('produk.index') }}" class="flex items-center gap-1 font-semibold text-on-surface-variant">
+            <a href="{{ route('panduan.ukuran') }}" class="flex items-center gap-1 font-semibold {{ request()->routeIs('panduan.ukuran') ? 'text-primary' : 'text-on-surface-variant' }}">
                 <span class="material-symbols-outlined text-sm">straighten</span>
                 <span>Panduan Ukuran</span>
             </a>
@@ -231,7 +231,7 @@
             <div class="space-y-2">
                 <h4 class="text-xs font-bold text-on-surface uppercase tracking-wider">Bantuan</h4>
                 <ul class="space-y-1.5 text-xs text-on-surface-variant">
-                    <li><a href="{{ route('produk.index') }}" class="hover:text-on-surface transition-colors">Panduan Ukuran</a></li>
+                    <li><a href="{{ route('panduan.ukuran') }}" class="hover:text-on-surface transition-colors">Panduan Ukuran</a></li>
                     <li><a href="#" class="hover:text-on-surface transition-colors">Status Pengiriman</a></li>
                     <li><a href="#" class="hover:text-on-surface transition-colors">Kebijakan Pengembalian</a></li>
                     <li><a href="#" class="hover:text-on-surface transition-colors">Pusat Bantuan & FAQ</a></li>
