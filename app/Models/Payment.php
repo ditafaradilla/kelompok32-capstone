@@ -64,3 +64,4 @@ class Payment extends Model
         return self::METODE_LABELS[$this->metode_pembayaran] ?? $this->metode_pembayaran;
     }
 }
+

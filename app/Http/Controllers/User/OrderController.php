@@ -134,3 +134,4 @@ class OrderController extends Controller
         return back()->with('success', 'Pesanan berhasil dibatalkan dan stok produk telah dikembalikan ke toko.');
     }
 }
+

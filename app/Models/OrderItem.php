@@ -47,3 +47,4 @@ class OrderItem extends Model
         return $this->jumlah * $this->harga_satuan;
     }
 }
+

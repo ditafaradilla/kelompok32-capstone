@@ -13,3 +13,4 @@ return [
     'bank_holder'  => env('SHOP_BANK_HOLDER', 'Baby Corner Official'),
     'whatsapp'     => env('SHOP_WHATSAPP', '081234567890'),
 ];
+
