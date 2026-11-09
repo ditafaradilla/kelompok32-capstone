@@ -96,8 +96,8 @@
                         @foreach($order->items as $item)
                         <tr>
                             <td class="py-3 px-4">
-                                <div class="font-bold text-on-surface">{{ $item->product->name }}</div>
-                                <div class="text-[11px] text-outline">SKU: {{ $item->product->sku }} • Varian: {{ $item->product->variants ?? '-' }}</div>
+                                <div class="font-bold text-on-surface">{{ $item->variant ? $item->variant->nama_lengkap : ($item->product->name ?? 'Produk') }}</div>
+                                <div class="text-[11px] text-outline">SKU: {{ $item->variant->sku ?? $item->product->sku ?? '-' }}</div>
                             </td>
                             <td class="py-3 px-4 text-center font-bold text-on-surface">{{ $item->quantity_ordered }} pcs</td>
                             <td class="py-3 px-4 text-center">
@@ -105,15 +105,15 @@
                                     {{ $item->quantity_received }} pcs
                                 </span>
                             </td>
-                            <td class="py-3 px-4 text-right text-on-surface">Rp {{ number_format($item->unit_cost, 0, ',', '.') }}</td>
-                            <td class="py-3 px-4 text-right font-bold text-on-surface">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
+                            <td class="py-3 px-4 text-right text-on-surface">{{ rupiah($item->unit_cost) }}</td>
+                            <td class="py-3 px-4 text-right font-bold text-on-surface">{{ rupiah($item->subtotal) }}</td>
                         </tr>
                         @endforeach
                     </tbody>
                     <tfoot>
                         <tr class="bg-surface-container-low/70 font-bold text-on-surface">
                             <td colspan="4" class="py-3 px-4 text-right text-xs uppercase tracking-wider">Total Biaya Pemesanan:</td>
-                            <td class="py-3 px-4 text-right text-sm text-primary">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</td>
+                            <td class="py-3 px-4 text-right text-sm text-primary font-bold">{{ rupiah($order->total_amount) }}</td>
                         </tr>
                     </tfoot>
                 </table>

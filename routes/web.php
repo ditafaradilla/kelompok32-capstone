@@ -159,7 +159,12 @@ Route::post('/dashboard/edit-profil', function (Request $request) {
 
     $user = Auth::user();
 
-    if ($request->hasFile('photo')) {
+    if ($request->boolean('remove_photo') || $request->input('remove_photo') === '1') {
+        if (!empty($user->photo) && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->photo)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($user->photo);
+        }
+        $user->photo = null;
+    } elseif ($request->hasFile('photo')) {
         if (!empty($user->photo) && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->photo)) {
             \Illuminate\Support\Facades\Storage::disk('public')->delete($user->photo);
         }

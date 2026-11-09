@@ -13,7 +13,6 @@ class Product extends Model
         'sku',
         'name',
         'category',
-        'variants',
         'size',
         'color',
         'price',
@@ -23,16 +22,14 @@ class Product extends Model
         'photo',
     ];
 
-    public function stocks()
+    public function variants()
     {
-        return $this->hasMany(ProductStock::class);
+        return $this->hasMany(ProductVariant::class);
     }
 
-    public function locations()
+    public function stocks()
     {
-        return $this->belongsToMany(Location::class, 'product_stocks')
-                    ->withPivot('quantity')
-                    ->withTimestamps();
+        return $this->hasManyThrough(ProductStock::class, ProductVariant::class, 'product_id', 'product_variant_id');
     }
 
     public function purchaseOrderItems()
@@ -41,11 +38,18 @@ class Product extends Model
     }
 
     /**
-     * Hitung total stok dari seluruh lokasi (toko & gudang)
+     * Hitung total stok dari seluruh varian dan lokasi (toko & gudang)
      */
     public function getTotalStockAttribute()
     {
-        return (int) $this->stocks()->sum('quantity');
+        if ($this->relationLoaded('variants') && $this->variants->every(fn ($v) => $v->relationLoaded('stocks'))) {
+            return (int) $this->variants->sum(fn ($v) => $v->stocks->sum('quantity'));
+        }
+
+        return (int) ProductStock::whereIn(
+            'product_variant_id',
+            $this->variants()->pluck('id')
+        )->sum('quantity');
     }
 
     /**

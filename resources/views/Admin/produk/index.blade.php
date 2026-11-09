@@ -83,28 +83,45 @@
                         <td class="py-3.5 px-4">
                             <div class="space-y-1">
                                 <span class="px-2 py-0.5 rounded-md bg-surface-container text-on-surface text-[10px] font-semibold">{{ $product->category }}</span>
-                                <div class="text-[11px] text-on-surface-variant">
-                                    {{ $product->variants ?? ($product->size . ' ' . $product->color) ?: '-' }}
+                                <div class="flex flex-wrap gap-1 mt-1">
+                                    @forelse($product->variants as $v)
+                                        <span class="px-1.5 py-0.5 rounded bg-surface-container-high text-[10px] text-on-surface font-medium">{{ $v->variant_label }}</span>
+                                    @empty
+                                        <span class="text-[11px] text-on-surface-variant">-</span>
+                                    @endforelse
                                 </div>
                             </div>
                         </td>
 
                         <!-- Harga -->
                         <td class="py-3.5 px-4">
-                            <div class="font-bold text-on-surface">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
-                            <div class="text-[10px] text-outline">Modal: Rp {{ number_format($product->cost_price, 0, ',', '.') }}</div>
+                            <div class="font-bold text-on-surface">{{ rupiah($product->price) }}</div>
+                            <div class="text-[10px] text-outline">Modal: {{ rupiah($product->cost_price) }}</div>
                         </td>
 
                         <!-- Pemisahan Stok Toko vs Gudang (Fitur 8) -->
                         <td class="py-3.5 px-4">
                             <div class="flex flex-col gap-1 max-w-xs">
-                                @forelse($product->stocks as $stock)
+                                @php
+                                    $stocksByLoc = [];
+                                    foreach($product->variants as $v) {
+                                        foreach($v->stocks as $s) {
+                                            $locName = $s->location->name ?? 'Lokasi';
+                                            $locType = $s->location->type ?? 'toko';
+                                            if (!isset($stocksByLoc[$locName])) {
+                                                $stocksByLoc[$locName] = ['type' => $locType, 'qty' => 0];
+                                            }
+                                            $stocksByLoc[$locName]['qty'] += $s->quantity;
+                                        }
+                                    }
+                                @endphp
+                                @forelse($stocksByLoc as $locName => $info)
                                     <div class="flex items-center justify-between text-[11px] px-2 py-0.5 rounded bg-surface-container-low">
                                         <span class="text-on-surface-variant flex items-center gap-1">
-                                            <span class="material-symbols-outlined text-xs text-outline">{{ $stock->location->type === 'toko' ? 'storefront' : 'warehouse' }}</span>
-                                            {{ $stock->location->name ?? 'Lokasi' }}:
+                                            <span class="material-symbols-outlined text-xs text-outline">{{ $info['type'] === 'toko' ? 'storefront' : 'warehouse' }}</span>
+                                            {{ $locName }}:
                                         </span>
-                                        <span class="font-bold text-on-surface">{{ $stock->quantity }} pcs</span>
+                                        <span class="font-bold text-on-surface">{{ $info['qty'] }} pcs</span>
                                     </div>
                                 @empty
                                     <span class="text-[11px] text-outline italic">Belum ada alokasi stok</span>

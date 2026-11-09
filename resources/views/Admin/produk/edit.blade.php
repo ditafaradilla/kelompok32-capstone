@@ -2,10 +2,10 @@
 
 @section('title', 'Edit Produk')
 @section('page-title', 'Edit Produk: ' . $product->name)
-@section('page-subtitle', 'Sesuai Diagram Alir: Ubah data baju bayi, varian ukuran/warna, harga, dan perbarui jumlah stok per lokasi')
+@section('page-subtitle', 'Ubah data pakaian bayi, varian ukuran/warna, harga, dan perbarui alokasi stok per varian')
 
 @section('content')
-<div class="max-w-4xl mx-auto">
+<div class="max-w-5xl mx-auto">
     
     <div class="mb-4">
         <a href="{{ route('admin.produk.index') }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline">
@@ -60,32 +60,10 @@
                     </datalist>
                 </div>
 
-                <!-- SKU / Barcode -->
+                <!-- SKU / Barcode Master -->
                 <div class="space-y-1">
-                    <label class="text-xs font-semibold text-on-surface">Kode SKU / Barcode <span class="text-error">*</span></label>
+                    <label class="text-xs font-semibold text-on-surface">Kode SKU Master <span class="text-error">*</span></label>
                     <input type="text" name="sku" value="{{ old('sku', $product->sku) }}" required class="w-full h-11 px-3 text-xs bg-surface-container-low rounded-xl border border-surface-container focus:ring-2 focus:ring-primary/40 outline-none text-on-surface font-mono" />
-                </div>
-            </div>
-        </div>
-
-        <!-- SECTION 2: VARIAN UKURAN, WARNA & HARGA -->
-        <div class="space-y-4">
-            <div class="flex items-center gap-2 pb-2 border-b border-surface-container">
-                <span class="material-symbols-outlined text-secondary text-xl">palette</span>
-                <h3 class="text-sm font-bold text-on-surface">2. Varian Ukuran / Warna & Harga</h3>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- Varian Ukuran -->
-                <div class="space-y-1">
-                    <label class="text-xs font-semibold text-on-surface">Varian Ukuran Bayi</label>
-                    <input type="text" name="size" value="{{ old('size', $product->size) }}" placeholder="Contoh: 0-3 Bulan, 6-12 Bulan" class="w-full h-11 px-3 text-xs bg-surface-container-low rounded-xl border border-surface-container focus:ring-2 focus:ring-primary/40 outline-none text-on-surface" />
-                </div>
-
-                <!-- Varian Warna -->
-                <div class="space-y-1">
-                    <label class="text-xs font-semibold text-on-surface">Varian Warna</label>
-                    <input type="text" name="color" value="{{ old('color', $product->color) }}" placeholder="Contoh: Sage Green, Pastel Pink" class="w-full h-11 px-3 text-xs bg-surface-container-low rounded-xl border border-surface-container focus:ring-2 focus:ring-primary/40 outline-none text-on-surface" />
                 </div>
 
                 <!-- Harga Jual -->
@@ -101,14 +79,14 @@
                 </div>
             </div>
 
-            <!-- Batas Minimum Stok (Fitur 11) -->
+            <!-- Batas Minimum Stok -->
             <div class="p-4 rounded-xl bg-amber-50/70 border border-amber-200/60 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div class="space-y-0.5">
                     <div class="text-xs font-bold text-amber-900 flex items-center gap-1.5">
                         <span class="material-symbols-outlined text-sm">notifications_active</span>
                         <span>Batas Minimum Peringatan Stok (Fitur 11)</span>
                     </div>
-                    <p class="text-[11px] text-amber-700">Peringatan otomatis muncul di dashboard jika stok produk &le; batas minimum ini.</p>
+                    <p class="text-[11px] text-amber-700">Peringatan otomatis muncul di dashboard jika stok total seluruh varian &le; batas minimum ini.</p>
                 </div>
                 <div class="w-full sm:w-36 shrink-0">
                     <input type="number" name="min_stock" value="{{ old('min_stock', $product->min_stock) }}" required min="0" class="w-full h-10 px-3 text-xs bg-white rounded-lg border border-amber-300 font-bold text-amber-900 focus:ring-2 focus:ring-amber-500/40 outline-none text-center" />
@@ -116,45 +94,129 @@
             </div>
         </div>
 
-        <!-- SECTION 3: ATUR STOK PER LOKASI (Pemisahan Stok Toko & Gudang) -->
+        <!-- SECTION 2: VARIAN UKURAN, WARNA & ALOKASI STOK PER LOKASI -->
         <div class="space-y-4">
-            <div class="flex items-center gap-2 pb-2 border-b border-surface-container">
-                <span class="material-symbols-outlined text-purple-600 text-xl">warehouse</span>
-                <div class="space-y-0.5">
-                    <h3 class="text-sm font-bold text-on-surface">3. Alokasi Stok Toko & Gudang (Pemisahan Stok)</h3>
-                    <p class="text-[11px] text-on-surface-variant">Ubah jumlah stok produk pada masing-masing titik toko dan gudang</p>
+            <div class="flex items-center justify-between pb-2 border-b border-surface-container">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-secondary text-xl">palette</span>
+                    <div>
+                        <h3 class="text-sm font-bold text-on-surface">2. Daftar Varian & Stok per Lokasi</h3>
+                        <p class="text-[11px] text-on-surface-variant">Ubah ukuran, warna, dan alokasi stok untuk masing-masing varian pakaian bayi</p>
+                    </div>
                 </div>
+                <button type="button" onclick="addVariantRow()" class="px-3 py-1.5 rounded-lg bg-secondary-container text-on-secondary-container text-xs font-semibold hover:opacity-90 flex items-center gap-1 cursor-pointer">
+                    <span class="material-symbols-outlined text-xs">add</span>
+                    <span>Tambah Baris Varian</span>
+                </button>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                @php
-                    $existingStocks = $product->stocks->pluck('quantity', 'location_id')->toArray();
-                @endphp
-                @foreach($locations as $loc)
-                    <div class="p-4 rounded-xl bg-surface-container-low border border-surface-container space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-on-surface flex items-center gap-1">
-                                <span class="material-symbols-outlined text-sm text-outline">{{ $loc->type === 'toko' ? 'storefront' : 'warehouse' }}</span>
-                                {{ $loc->name }}
+            <datalist id="size-suggestions">
+                @foreach($sizeGuides as $sg)
+                    <option value="{{ $sg->ukuran }}">{{ $sg->ukuran }} ({{ $sg->usia_min_bulan }}-{{ $sg->usia_maks_bulan }} bln)</option>
+                @endforeach
+            </datalist>
+
+            <div class="space-y-3" id="variants-container">
+                @forelse($product->variants as $idx => $variant)
+                    @php
+                        $varStocks = $variant->stocks->pluck('quantity', 'location_id')->toArray();
+                    @endphp
+                    <div class="variant-card p-4 rounded-xl bg-surface-container-low border border-surface-container space-y-3">
+                        <input type="hidden" name="variants[{{ $idx }}][id]" value="{{ $variant->id }}" />
+
+                        <div class="flex items-center justify-between pb-2 border-b border-surface-container/60">
+                            <span class="text-xs font-bold text-primary flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">sell</span>
+                                <span class="variant-number-label">Varian #{{ $idx + 1 }}</span>
                             </span>
-                            <span class="px-2 py-0.5 rounded text-[10px] uppercase font-bold {{ $loc->type === 'toko' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700' }}">
-                                {{ $loc->type }}
-                            </span>
+                            <button type="button" onclick="removeVariantRow(this)" class="text-outline hover:text-error text-xs flex items-center gap-1 cursor-pointer">
+                                <span class="material-symbols-outlined text-sm">delete</span>
+                                <span>Hapus</span>
+                            </button>
                         </div>
-                        <div class="space-y-1">
-                            <label class="text-[11px] text-outline">Jumlah Stok (pcs):</label>
-                            <input type="number" name="stocks[{{ $loc->id }}]" value="{{ old('stocks.' . $loc->id, $existingStocks[$loc->id] ?? 0) }}" min="0" class="w-full h-9 px-3 text-xs bg-white rounded-lg border border-surface-container font-semibold text-on-surface text-center focus:ring-2 focus:ring-primary/40 outline-none" />
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="space-y-1">
+                                <label class="text-[11px] font-semibold text-on-surface">Ukuran (Size Guide) <span class="text-error">*</span></label>
+                                <input type="text" name="variants[{{ $idx }}][ukuran]" value="{{ old('variants.'.$idx.'.ukuran', $variant->ukuran) }}" list="size-suggestions" required class="w-full h-9 px-3 text-xs bg-white rounded-lg border border-surface-container focus:ring-2 focus:ring-primary/40 outline-none" />
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[11px] font-semibold text-on-surface">Warna</label>
+                                <input type="text" name="variants[{{ $idx }}][warna]" value="{{ old('variants.'.$idx.'.warna', $variant->warna) }}" class="w-full h-9 px-3 text-xs bg-white rounded-lg border border-surface-container focus:ring-2 focus:ring-primary/40 outline-none" />
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[11px] font-semibold text-on-surface">SKU Varian (Opsional)</label>
+                                <input type="text" name="variants[{{ $idx }}][sku]" value="{{ old('variants.'.$idx.'.sku', $variant->sku) }}" class="w-full h-9 px-3 text-xs bg-white rounded-lg border border-surface-container font-mono text-[11px] focus:ring-2 focus:ring-primary/40 outline-none" />
+                            </div>
+                        </div>
+
+                        <!-- Stok per Lokasi untuk varian ini -->
+                        <div class="pt-2">
+                            <label class="text-[11px] font-semibold text-on-surface block mb-1.5">Alokasi Stok di Lokasi Toko & Gudang (pcs):</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                                @foreach($locations as $loc)
+                                    <div class="p-2.5 rounded-lg bg-white border border-surface-container flex items-center justify-between gap-2">
+                                        <div class="space-y-0.5 min-w-0">
+                                            <div class="text-[11px] font-bold text-on-surface truncate">{{ $loc->name }}</div>
+                                            <span class="text-[9px] uppercase font-bold px-1.5 py-0.2 rounded {{ $loc->type === 'toko' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700' }}">{{ $loc->type }}</span>
+                                        </div>
+                                        <input type="number" name="variants[{{ $idx }}][stocks][{{ $loc->id }}]" value="{{ old('variants.'.$idx.'.stocks.'.$loc->id, $varStocks[$loc->id] ?? 0) }}" min="0" class="w-16 h-8 px-2 text-xs bg-surface-container-low rounded border border-surface-container text-center font-bold text-on-surface outline-none" />
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
                     </div>
-                @endforeach
+                @empty
+                    <!-- Fallback satu baris varian jika produk belum memiliki varian -->
+                    <div class="variant-card p-4 rounded-xl bg-surface-container-low border border-surface-container space-y-3">
+                        <div class="flex items-center justify-between pb-2 border-b border-surface-container/60">
+                            <span class="text-xs font-bold text-primary flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">sell</span>
+                                <span class="variant-number-label">Varian #1</span>
+                            </span>
+                            <button type="button" onclick="removeVariantRow(this)" class="text-outline hover:text-error text-xs flex items-center gap-1 cursor-pointer">
+                                <span class="material-symbols-outlined text-sm">delete</span>
+                                <span>Hapus</span>
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="space-y-1">
+                                <label class="text-[11px] font-semibold text-on-surface">Ukuran (Size Guide) <span class="text-error">*</span></label>
+                                <input type="text" name="variants[0][ukuran]" list="size-suggestions" required placeholder="Pilih: 0-3M, 3-6M, dst." class="w-full h-9 px-3 text-xs bg-white rounded-lg border border-surface-container focus:ring-2 focus:ring-primary/40 outline-none" />
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[11px] font-semibold text-on-surface">Warna</label>
+                                <input type="text" name="variants[0][warna]" placeholder="Contoh: Sage Green, Putih" class="w-full h-9 px-3 text-xs bg-white rounded-lg border border-surface-container focus:ring-2 focus:ring-primary/40 outline-none" />
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[11px] font-semibold text-on-surface">SKU Varian (Opsional)</label>
+                                <input type="text" name="variants[0][sku]" placeholder="Auto generate" class="w-full h-9 px-3 text-xs bg-white rounded-lg border border-surface-container font-mono text-[11px] focus:ring-2 focus:ring-primary/40 outline-none" />
+                            </div>
+                        </div>
+                        <div class="pt-2">
+                            <label class="text-[11px] font-semibold text-on-surface block mb-1.5">Alokasi Stok di Lokasi Toko & Gudang (pcs):</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                                @foreach($locations as $loc)
+                                    <div class="p-2.5 rounded-lg bg-white border border-surface-container flex items-center justify-between gap-2">
+                                        <div class="space-y-0.5 min-w-0">
+                                            <div class="text-[11px] font-bold text-on-surface truncate">{{ $loc->name }}</div>
+                                            <span class="text-[9px] uppercase font-bold px-1.5 py-0.2 rounded {{ $loc->type === 'toko' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700' }}">{{ $loc->type }}</span>
+                                        </div>
+                                        <input type="number" name="variants[0][stocks][{{ $loc->id }}]" value="0" min="0" class="w-16 h-8 px-2 text-xs bg-surface-container-low rounded border border-surface-container text-center font-bold text-on-surface outline-none" />
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                @endforelse
             </div>
         </div>
 
-        <!-- SECTION 4: FOTO & DESKRIPSI -->
+        <!-- SECTION 3: FOTO & DESKRIPSI -->
         <div class="space-y-4">
             <div class="flex items-center gap-2 pb-2 border-b border-surface-container">
                 <span class="material-symbols-outlined text-outline text-xl">image</span>
-                <h3 class="text-sm font-bold text-on-surface">4. Foto Produk & Deskripsi</h3>
+                <h3 class="text-sm font-bold text-on-surface">3. Foto Produk & Deskripsi</h3>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
@@ -189,9 +251,73 @@
             </a>
             <button type="submit" class="px-6 py-2.5 rounded-xl bg-primary text-on-primary text-xs font-semibold hover:bg-surface-tint transition-all shadow-xs flex items-center gap-2 cursor-pointer">
                 <span class="material-symbols-outlined text-sm">save</span>
-                <span>Simpan Perubahan Produk & Stok</span>
+                <span>Simpan Perubahan Produk & Varian</span>
             </button>
         </div>
     </form>
 </div>
+
+<!-- SCRIPT REPEATER VARIAN -->
+<script>
+    let variantIndex = {{ max(count($product->variants), 1) }};
+
+    function addVariantRow() {
+        const container = document.getElementById('variants-container');
+        const template = `
+        <div class="variant-card p-4 rounded-xl bg-surface-container-low border border-surface-container space-y-3">
+            <div class="flex items-center justify-between pb-2 border-b border-surface-container/60">
+                <span class="text-xs font-bold text-primary flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">sell</span>
+                    <span class="variant-number-label">Varian Baru</span>
+                </span>
+                <button type="button" onclick="removeVariantRow(this)" class="text-outline hover:text-error text-xs flex items-center gap-1 cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">delete</span>
+                    <span>Hapus</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="space-y-1">
+                    <label class="text-[11px] font-semibold text-on-surface">Ukuran (Size Guide) <span class="text-error">*</span></label>
+                    <input type="text" name="variants[${variantIndex}][ukuran]" list="size-suggestions" required placeholder="Pilih: 0-3M, 3-6M, dst." class="w-full h-9 px-3 text-xs bg-white rounded-lg border border-surface-container focus:ring-2 focus:ring-primary/40 outline-none" />
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[11px] font-semibold text-on-surface">Warna</label>
+                    <input type="text" name="variants[${variantIndex}][warna]" placeholder="Contoh: Sage Green, Putih" class="w-full h-9 px-3 text-xs bg-white rounded-lg border border-surface-container focus:ring-2 focus:ring-primary/40 outline-none" />
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[11px] font-semibold text-on-surface">SKU Varian (Opsional)</label>
+                    <input type="text" name="variants[${variantIndex}][sku]" placeholder="Auto generate" class="w-full h-9 px-3 text-xs bg-white rounded-lg border border-surface-container font-mono text-[11px] focus:ring-2 focus:ring-primary/40 outline-none" />
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <label class="text-[11px] font-semibold text-on-surface block mb-1.5">Alokasi Stok di Lokasi Toko & Gudang (pcs):</label>
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                    @foreach($locations as $loc)
+                        <div class="p-2.5 rounded-lg bg-white border border-surface-container flex items-center justify-between gap-2">
+                            <div class="space-y-0.5 min-w-0">
+                                <div class="text-[11px] font-bold text-on-surface truncate">{{ $loc->name }}</div>
+                                <span class="text-[9px] uppercase font-bold px-1.5 py-0.2 rounded {{ $loc->type === 'toko' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700' }}">{{ $loc->type }}</span>
+                            </div>
+                            <input type="number" name="variants[${variantIndex}][stocks][{{ $loc->id }}]" value="0" min="0" class="w-16 h-8 px-2 text-xs bg-surface-container-low rounded border border-surface-container text-center font-bold text-on-surface outline-none" />
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+        `;
+        container.insertAdjacentHTML('beforeend', template);
+        variantIndex++;
+    }
+
+    function removeVariantRow(button) {
+        const cards = document.querySelectorAll('.variant-card');
+        if (cards.length <= 1) {
+            alert('Produk harus memiliki minimal satu varian.');
+            return;
+        }
+        button.closest('.variant-card').remove();
+    }
+</script>
 @endsection

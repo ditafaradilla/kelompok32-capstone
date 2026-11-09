@@ -16,7 +16,7 @@ class ReceivingController extends Controller
      */
     public function index()
     {
-        $orders = PurchaseOrder::with(['supplier', 'targetLocation', 'items.product'])
+        $orders = PurchaseOrder::with(['supplier', 'targetLocation', 'items.variant.product', 'items.product'])
                                ->latest()
                                ->paginate(10);
 
@@ -28,17 +28,17 @@ class ReceivingController extends Controller
      */
     public function show($id)
     {
-        $order = PurchaseOrder::with(['supplier', 'targetLocation', 'items.product'])->findOrFail($id);
+        $order = PurchaseOrder::with(['supplier', 'targetLocation', 'items.variant.product', 'items.product'])->findOrFail($id);
 
         return view('Admin.penerimaan.form', compact('order'));
     }
 
     /**
-     * Simpan Data Penerimaan Barang, Tambah Stok Produk & Cek Peringatan Stok Minimum (Fitur 11)
+     * Simpan Data Penerimaan Barang, Tambah Stok Varian Produk & Cek Peringatan Stok Minimum (Fitur 11)
      */
     public function store(Request $request, $id)
     {
-        $order = PurchaseOrder::with('items.product')->findOrFail($id);
+        $order = PurchaseOrder::with(['items.variant.product', 'items.product'])->findOrFail($id);
 
         $validated = $request->validate([
             'received_date' => 'required|date',
@@ -56,18 +56,18 @@ class ReceivingController extends Controller
             $item->quantity_received += $receivedQty;
             $item->save();
 
-            // Tambah stok produk ke lokasi tujuan
-            if ($targetLocationId && $receivedQty > 0) {
+            // Tambah stok varian produk ke lokasi tujuan
+            if ($targetLocationId && $receivedQty > 0 && $item->product_variant_id) {
                 $stock = ProductStock::firstOrCreate(
-                    ['product_id' => $item->product_id, 'location_id' => $targetLocationId],
+                    ['product_variant_id' => $item->product_variant_id, 'location_id' => $targetLocationId],
                     ['quantity' => 0]
                 );
                 $stock->increment('quantity', $receivedQty);
             }
 
             // Cek Peringatan Stok Minimum (Diagram 4: Apakah stok mencapai batas minimum?)
-            $product = $item->product->fresh();
-            if ($product->total_stock <= $product->min_stock) {
+            $product = $item->product ? $item->product->fresh() : ($item->variant?->product->fresh());
+            if ($product && $product->total_stock <= $product->min_stock) {
                 $lowStockAlerts[] = [
                     'name'        => $product->name,
                     'total_stock' => $product->total_stock,

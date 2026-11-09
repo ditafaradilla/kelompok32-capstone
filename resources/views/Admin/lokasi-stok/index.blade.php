@@ -115,41 +115,44 @@
             <input type="hidden" name="location_id" value="{{ $selectedLocation->id }}" />
 
             @php
-                $stocksInSelectedLocation = $selectedLocation->stocks->pluck('quantity', 'product_id')->toArray();
+                $stocksInSelectedLocation = $selectedLocation->stocks->pluck('quantity', 'product_variant_id')->toArray();
             @endphp
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs">
                     <thead>
                         <tr class="bg-surface-container-low/70 text-outline font-semibold border-b border-surface-container">
-                            <th class="py-3 px-4">Produk</th>
-                            <th class="py-3 px-4">Kategori & Varian</th>
-                            <th class="py-3 px-4">Batas Minimum</th>
+                            <th class="py-3 px-4">Nama Produk & Varian</th>
+                            <th class="py-3 px-4">Kategori</th>
+                            <th class="py-3 px-4">Batas Min. Produk</th>
                             <th class="py-3 px-4 text-center">Jumlah Stok di Lokasi Ini (pcs)</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-surface-container-low">
-                        @foreach($allProducts as $product)
+                        @forelse($allVariants as $variant)
                             <tr class="hover:bg-surface-container-low/30 transition-colors">
                                 <td class="py-3 px-4">
-                                    <div class="font-bold text-on-surface">{{ $product->name }}</div>
-                                    <div class="text-[11px] text-outline font-mono">SKU: {{ $product->sku }}</div>
+                                    <div class="font-bold text-on-surface">{{ $variant->nama_lengkap }}</div>
+                                    <div class="text-[11px] text-outline font-mono">SKU Varian: {{ $variant->sku ?? '-' }}</div>
                                 </td>
                                 <td class="py-3 px-4">
-                                    <span class="px-2 py-0.5 rounded bg-surface-container text-on-surface text-[10px] font-semibold">{{ $product->category }}</span>
-                                    <span class="text-[11px] text-on-surface-variant ml-1">{{ $product->variants ?? '-' }}</span>
+                                    <span class="px-2 py-0.5 rounded bg-surface-container text-on-surface text-[10px] font-semibold">{{ $variant->product->category ?? 'Pakaian' }}</span>
                                 </td>
                                 <td class="py-3 px-4">
-                                    <span class="text-outline text-[11px]">{{ $product->min_stock }} pcs</span>
+                                    <span class="text-outline text-[11px]">{{ $variant->product->min_stock ?? 5 }} pcs</span>
                                 </td>
                                 <td class="py-3 px-4 text-center">
                                     <div class="inline-flex items-center gap-2">
-                                        <input type="number" name="stocks[{{ $product->id }}]" value="{{ $stocksInSelectedLocation[$product->id] ?? 0 }}" min="0" class="w-24 h-9 px-3 text-xs bg-surface-container-low rounded-lg border border-surface-container text-center font-bold text-on-surface focus:ring-2 focus:ring-primary/40 outline-none" />
+                                        <input type="number" name="stocks[{{ $variant->id }}]" value="{{ $stocksInSelectedLocation[$variant->id] ?? 0 }}" min="0" class="w-24 h-9 px-3 text-xs bg-surface-container-low rounded-lg border border-surface-container text-center font-bold text-on-surface focus:ring-2 focus:ring-primary/40 outline-none" />
                                         <span class="text-[11px] text-outline">pcs</span>
                                     </div>
                                 </td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="4" class="py-6 text-center text-outline italic">Belum ada varian produk di sistem</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

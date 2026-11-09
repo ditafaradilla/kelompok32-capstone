@@ -36,7 +36,7 @@ class SalesDashboardController extends BiController
         $data['totalProducts'] = \App\Models\Product::count();
         $data['totalLocations'] = \App\Models\Location::count();
         $data['totalOrders'] = \App\Models\PurchaseOrder::count();
-        $allProducts = \App\Models\Product::with('stocks')->get();
+        $allProducts = \App\Models\Product::with(['variants.stocks'])->get();
         $data['lowStockProducts'] = $allProducts->filter->is_low_stock;
         $data['outOfStockProducts'] = $allProducts->filter->is_out_of_stock;
         $data['recentOrders'] = \App\Models\PurchaseOrder::with(['supplier', 'targetLocation'])->latest()->take(5)->get();

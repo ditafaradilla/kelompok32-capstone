@@ -99,11 +99,11 @@
                         <!-- Baris 1 Default -->
                         <tr class="item-row">
                             <td class="py-2.5 px-3">
-                                <select name="items[0][product_id]" required onchange="updatePrice(this, 0)" class="w-full h-10 px-3 text-xs bg-surface-container-low rounded-xl border border-surface-container outline-none text-on-surface product-select">
-                                    <option value="">-- Pilih Produk Baju Bayi --</option>
-                                    @foreach($products as $prod)
-                                        <option value="{{ $prod->id }}" data-cost="{{ (int)$prod->cost_price }}">
-                                            {{ $prod->name }} ({{ $prod->variants ?? $prod->category }}) - SKU: {{ $prod->sku }}
+                                <select name="items[0][product_variant_id]" required onchange="updatePrice(this, 0)" class="w-full h-10 px-3 text-xs bg-surface-container-low rounded-xl border border-surface-container outline-none text-on-surface product-select">
+                                    <option value="">-- Pilih Varian Produk Baju Bayi --</option>
+                                    @foreach($variants as $var)
+                                        <option value="{{ $var->id }}" data-cost="{{ (int)($var->product->cost_price ?? 0) }}">
+                                            {{ $var->nama_lengkap }} (SKU: {{ $var->sku ?? $var->product->sku ?? '-' }})
                                         </option>
                                     @endforeach
                                 </select>
@@ -148,18 +148,23 @@
 @section('scripts')
 <script>
     let rowIndex = 1;
-    const productsData = @json($products);
+    const variantsData = @json($variants);
 
     function addItemRow() {
-        let optionsHtml = '<option value="">-- Pilih Produk Baju Bayi --</option>';
-        productsData.forEach(p => {
-            optionsHtml += `<option value="${p.id}" data-cost="${parseInt(p.cost_price || 0)}">${p.name} (${p.variants || p.category}) - SKU: ${p.sku}</option>`;
+        let optionsHtml = '<option value="">-- Pilih Varian Produk Baju Bayi --</option>';
+        variantsData.forEach(v => {
+            const prodName = v.product ? v.product.name : 'Produk';
+            const varParts = [v.ukuran, v.warna].filter(Boolean).join(' / ');
+            const label = varParts ? `${prodName} — ${varParts}` : prodName;
+            const cost = v.product ? parseInt(v.product.cost_price || 0) : 40000;
+            const sku = v.sku || (v.product ? v.product.sku : '-');
+            optionsHtml += `<option value="${v.id}" data-cost="${cost}">${label} (SKU: ${sku})</option>`;
         });
 
         const newRow = `
             <tr class="item-row">
                 <td class="py-2.5 px-3">
-                    <select name="items[${rowIndex}][product_id]" required onchange="updatePrice(this, ${rowIndex})" class="w-full h-10 px-3 text-xs bg-surface-container-low rounded-xl border border-surface-container outline-none text-on-surface product-select">
+                    <select name="items[${rowIndex}][product_variant_id]" required onchange="updatePrice(this, ${rowIndex})" class="w-full h-10 px-3 text-xs bg-surface-container-low rounded-xl border border-surface-container outline-none text-on-surface product-select">
                         ${optionsHtml}
                     </select>
                 </td>

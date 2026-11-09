@@ -21,9 +21,9 @@ class Location extends Model
         return $this->hasMany(ProductStock::class);
     }
 
-    public function products()
+    public function variants()
     {
-        return $this->belongsToMany(Product::class, 'product_stocks')
+        return $this->belongsToMany(ProductVariant::class, 'product_stocks', 'location_id', 'product_variant_id')
                     ->withPivot('quantity')
                     ->withTimestamps();
     }

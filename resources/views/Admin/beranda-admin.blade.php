@@ -95,7 +95,7 @@
                 <div class="p-3.5 rounded-xl bg-red-50 border border-red-200 flex items-center justify-between text-xs">
                     <div>
                         <div class="font-bold text-red-900">{{ $prod->name }}</div>
-                        <div class="text-[11px] text-red-700">SKU: {{ $prod->sku }} • Varian: {{ $prod->variants ?? '-' }}</div>
+                        <div class="text-[11px] text-red-700">SKU: {{ $prod->sku }} • Varian: {{ $prod->variants->pluck('variant_label')->filter()->implode(', ') ?: '-' }}</div>
                     </div>
                     <span class="px-2.5 py-1 rounded-full bg-red-600 text-white font-bold text-[10px]">Stok 0</span>
                 </div>
@@ -105,6 +105,7 @@
                 <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between text-xs">
                     <div>
                         <div class="font-bold text-amber-900">{{ $prod->name }}</div>
+                        <div class="text-[11px] text-amber-700">SKU: {{ $prod->sku }} • Varian: {{ $prod->variants->pluck('variant_label')->filter()->implode(', ') ?: '-' }}</div>
                         <div class="text-[11px] text-amber-700">Sisa: {{ $prod->total_stock }} pcs (Min: {{ $prod->min_stock }})</div>
                     </div>
                     <span class="px-2.5 py-1 rounded-full bg-amber-500 text-white font-bold text-[10px]">Menipis</span>

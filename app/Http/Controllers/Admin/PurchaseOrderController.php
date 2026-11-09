@@ -7,6 +7,7 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use App\Models\Supplier;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\Location;
 use Illuminate\Http\Request;
 
@@ -17,7 +18,7 @@ class PurchaseOrderController extends Controller
      */
     public function index()
     {
-        $orders = PurchaseOrder::with(['supplier', 'targetLocation', 'items.product'])
+        $orders = PurchaseOrder::with(['supplier', 'targetLocation', 'items.variant.product', 'items.product'])
                                ->latest()
                                ->paginate(10);
 
@@ -30,26 +31,26 @@ class PurchaseOrderController extends Controller
     public function create()
     {
         $suppliers = Supplier::all();
-        $products = Product::all();
+        $variants = ProductVariant::with('product')->get();
         $locations = Location::all();
 
-        return view('Admin.pemesanan.create', compact('suppliers', 'products', 'locations'));
+        return view('Admin.pemesanan.create', compact('suppliers', 'variants', 'locations'));
     }
 
     /**
-     * Simpan Catatan Pemesanan Barang ke Pemasok
+     * Simpan Catatan Pemesanan Barang ke Pemasok per Varian
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'supplier_id'        => 'required|exists:suppliers,id',
-            'order_date'         => 'required|date',
-            'target_location_id' => 'required|exists:locations,id',
-            'notes'              => 'nullable|string',
-            'items'              => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity'   => 'required|integer|min:1',
-            'items.*.unit_cost'  => 'required|numeric|min:0',
+            'supplier_id'                => 'required|exists:suppliers,id',
+            'order_date'                 => 'required|date',
+            'target_location_id'         => 'required|exists:locations,id',
+            'notes'                      => 'nullable|string',
+            'items'                      => 'required|array|min:1',
+            'items.*.product_variant_id' => 'required|exists:product_variants,id',
+            'items.*.quantity'           => 'required|integer|min:1',
+            'items.*.unit_cost'          => 'required|numeric|min:0',
         ]);
 
         // Auto-generate nomor PO: PO-YYYYMM-XXXX
@@ -71,13 +72,15 @@ class PurchaseOrderController extends Controller
         ]);
 
         foreach ($validated['items'] as $item) {
+            $variant = ProductVariant::findOrFail($item['product_variant_id']);
             PurchaseOrderItem::create([
-                'purchase_order_id' => $order->id,
-                'product_id'        => $item['product_id'],
-                'quantity_ordered'  => $item['quantity'],
-                'quantity_received' => 0,
-                'unit_cost'         => $item['unit_cost'],
-                'subtotal'          => $item['quantity'] * $item['unit_cost'],
+                'purchase_order_id'  => $order->id,
+                'product_id'         => $variant->product_id,
+                'product_variant_id' => $variant->id,
+                'quantity_ordered'   => $item['quantity'],
+                'quantity_received'  => 0,
+                'unit_cost'          => $item['unit_cost'],
+                'subtotal'           => $item['quantity'] * $item['unit_cost'],
             ]);
         }
 
@@ -90,7 +93,7 @@ class PurchaseOrderController extends Controller
      */
     public function show($id)
     {
-        $order = PurchaseOrder::with(['supplier', 'targetLocation', 'items.product'])->findOrFail($id);
+        $order = PurchaseOrder::with(['supplier', 'targetLocation', 'items.variant.product', 'items.product'])->findOrFail($id);
 
         return view('Admin.pemesanan.show', compact('order'));
     }

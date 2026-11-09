@@ -95,8 +95,8 @@
                         @endphp
                         <tr class="hover:bg-surface-container-low/30 transition-colors">
                             <td class="py-3 px-4">
-                                <div class="font-bold text-on-surface">{{ $item->product->name }}</div>
-                                <div class="text-[11px] text-outline">SKU: {{ $item->product->sku }} • Varian: {{ $item->product->variants ?? '-' }}</div>
+                                <div class="font-bold text-on-surface">{{ $item->variant ? $item->variant->nama_lengkap : ($item->product->name ?? 'Produk') }}</div>
+                                <div class="text-[11px] text-outline">SKU: {{ $item->variant->sku ?? $item->product->sku ?? '-' }}</div>
                             </td>
                             <td class="py-3 px-4 text-center font-bold text-on-surface">{{ $item->quantity_ordered }} pcs</td>
                             <td class="py-3 px-4 text-center">

@@ -5,27 +5,27 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Location;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\ProductStock;
 use Illuminate\Http\Request;
 
 class LocationStockController extends Controller
 {
     /**
-     * Tampilkan Halaman Daftar Lokasi & Stok per Lokasi (Fitur 9)
+     * Tampilkan Halaman Daftar Lokasi & Stok per Varian Lokasi (Fitur 9)
      */
     public function index(Request $request)
     {
-        $locations = Location::withCount('products')
-                             ->with(['stocks.product'])
-                             ->get();
+        $locations = Location::with(['stocks.variant.product'])->get();
 
         // Lokasi yang sedang dipilih untuk "Kelola Stok"
         $selectedLocationId = $request->get('location_id', $locations->first()->id ?? null);
-        $selectedLocation = $selectedLocationId ? Location::with('stocks.product')->find($selectedLocationId) : null;
+        $selectedLocation = $selectedLocationId ? Location::with('stocks.variant.product')->find($selectedLocationId) : null;
         
-        $allProducts = Product::all();
+        // Seluruh varian produk yang aktif
+        $allVariants = ProductVariant::with('product')->get();
 
-        return view('Admin.lokasi-stok.index', compact('locations', 'selectedLocation', 'allProducts'));
+        return view('Admin.lokasi-stok.index', compact('locations', 'selectedLocation', 'allVariants'));
     }
 
     /**
@@ -52,7 +52,7 @@ class LocationStockController extends Controller
     }
 
     /**
-     * Kelola / Perbarui Stok Produk pada Lokasi Tertentu
+     * Kelola / Perbarui Stok Varian Produk pada Lokasi Tertentu
      */
     public function updateStock(Request $request)
     {
@@ -64,14 +64,14 @@ class LocationStockController extends Controller
 
         $location = Location::findOrFail($validated['location_id']);
 
-        foreach ($validated['stocks'] as $productId => $qty) {
+        foreach ($validated['stocks'] as $variantId => $qty) {
             ProductStock::updateOrCreate(
-                ['product_id' => $productId, 'location_id' => $location->id],
-                ['quantity'   => (int) $qty]
+                ['product_variant_id' => $variantId, 'location_id' => $location->id],
+                ['quantity'           => (int) $qty]
             );
         }
 
         return redirect()->route('admin.lokasi.index', ['location_id' => $location->id])
-                         ->with('success', 'Stok produk di lokasi "' . $location->name . '" berhasil diperbarui!');
+                         ->with('success', 'Stok varian produk di lokasi "' . $location->name . '" berhasil diperbarui!');
     }
 }
