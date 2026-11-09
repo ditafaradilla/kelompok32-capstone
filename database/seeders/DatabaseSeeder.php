@@ -11,6 +11,10 @@ use App\Models\ProductStock;
 use App\Models\Supplier;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Payment;
+use App\Models\Transaction;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
@@ -302,6 +306,106 @@ class DatabaseSeeder extends Seeder
                     'quantity_received' => 0,
                     'unit_cost'         => $secondVariantSample->product->cost_price ?? 42000,
                     'subtotal'          => 25 * ($secondVariantSample->product->cost_price ?? 42000),
+                ]
+            );
+        }
+
+        // 7. Data Pesanan Contoh untuk Pelanggan (Bunda Sarah) - FRI-04
+        if ($firstVariantSample && $secondVariantSample) {
+            // Pesanan 1: Menunggu Verifikasi Pembayaran (Transfer Bank)
+            $order1 = Order::updateOrCreate(
+                ['nomor_pesanan' => 'BC-20261109-0001'],
+                [
+                    'user_id'           => $bundaSarah->id,
+                    'tanggal_pesanan'   => now()->subHours(2),
+                    'total_harga'       => $firstVariantSample->product->price * 2,
+                    'alamat_pengiriman' => 'Jl. Boulevard Raya No. 12, Kelapa Gading, Jakarta Utara',
+                    'nama_penerima'     => 'Bunda Sarah',
+                    'telepon_penerima'  => '089876543210',
+                    'catatan'           => 'Mohon dipacking rapi untuk kado bayi.',
+                    'ongkir'            => 0,
+                    'status_pesanan'    => Order::STATUS_MENUNGGU_VERIFIKASI,
+                ]
+            );
+
+            OrderItem::updateOrCreate(
+                [
+                    'order_id'           => $order1->id,
+                    'product_variant_id' => $firstVariantSample->id,
+                ],
+                [
+                    'product_id'   => $firstVariantSample->product_id,
+                    'jumlah'       => 2,
+                    'harga_satuan' => $firstVariantSample->product->price,
+                    'nama_produk'  => $firstVariantSample->product->name,
+                    'varian_label' => $firstVariantSample->variant_label,
+                ]
+            );
+
+            Payment::updateOrCreate(
+                ['order_id' => $order1->id],
+                [
+                    'metode_pembayaran' => Payment::METODE_TRANSFER,
+                    'jumlah_bayar'      => $order1->total_harga,
+                    'status_pembayaran' => Payment::STATUS_MENUNGGU_VERIFIKASI,
+                    'tanggal_bayar'     => now()->subHour(),
+                    'bukti_bayar'       => 'payment-proofs/sample-transfer-proof.jpg',
+                ]
+            );
+
+            // Pesanan 2: Sudah Diverifikasi & Diproses (QRIS, dengan pencatatan Transaksi Pembukuan)
+            $order2 = Order::updateOrCreate(
+                ['nomor_pesanan' => 'BC-20261108-0001'],
+                [
+                    'user_id'           => $bundaSarah->id,
+                    'tanggal_pesanan'   => now()->subDay(),
+                    'total_harga'       => $secondVariantSample->product->price * 1,
+                    'alamat_pengiriman' => 'Jl. Boulevard Raya No. 12, Kelapa Gading, Jakarta Utara',
+                    'nama_penerima'     => 'Bunda Sarah',
+                    'telepon_penerima'  => '089876543210',
+                    'catatan'           => 'Pengiriman reguler',
+                    'ongkir'            => 0,
+                    'status_pesanan'    => Order::STATUS_DIPROSES,
+                ]
+            );
+
+            OrderItem::updateOrCreate(
+                [
+                    'order_id'           => $order2->id,
+                    'product_variant_id' => $secondVariantSample->id,
+                ],
+                [
+                    'product_id'   => $secondVariantSample->product_id,
+                    'jumlah'       => 1,
+                    'harga_satuan' => $secondVariantSample->product->price,
+                    'nama_produk'  => $secondVariantSample->product->name,
+                    'varian_label' => $secondVariantSample->variant_label,
+                ]
+            );
+
+            Payment::updateOrCreate(
+                ['order_id' => $order2->id],
+                [
+                    'metode_pembayaran' => Payment::METODE_QRIS,
+                    'jumlah_bayar'      => $order2->total_harga,
+                    'status_pembayaran' => Payment::STATUS_LUNAS,
+                    'tanggal_bayar'     => now()->subDay(),
+                    'bukti_bayar'       => 'payment-proofs/sample-qris-proof.jpg',
+                ]
+            );
+
+            // Transaksi Pembukuan Idempotent untuk Order 2
+            Transaction::updateOrCreate(
+                ['reference' => $order2->nomor_pesanan],
+                [
+                    'transaction_date' => now()->subDay()->toDateString(),
+                    'type'             => Transaction::TYPE_INCOME,
+                    'category'         => 'Penjualan Online',
+                    'amount'           => $order2->total_harga,
+                    'payment_status'   => Transaction::STATUS_PAID,
+                    'payment_method'   => 'QRIS',
+                    'description'      => "Penjualan online pesanan #{$order2->nomor_pesanan} ({$order2->nama_penerima})",
+                    'created_by'       => $admin->id,
                 ]
             );
         }

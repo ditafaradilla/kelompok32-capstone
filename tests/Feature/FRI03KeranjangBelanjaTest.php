@@ -345,3 +345,4 @@ class FRI03KeranjangBelanjaTest extends TestCase
         $response->assertDontSee('Lanjut ke Checkout');
     }
 }
+

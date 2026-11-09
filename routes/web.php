@@ -15,11 +15,14 @@ use App\Http\Controllers\Admin\FinanceReportController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\ForecastController;
 use App\Http\Controllers\Admin\SalesDashboardController;
+use App\Http\Controllers\Admin\OrderManagementController;
 use App\Http\Controllers\User\CatalogController;
 use App\Http\Controllers\User\SizeGuideController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\BabyController;
 use App\Http\Controllers\User\CartController;
+use App\Http\Controllers\User\CheckoutController;
+use App\Http\Controllers\User\OrderController;
 use App\Http\Middleware\EnsureUserIsAdmin;
 
 /*
@@ -105,6 +108,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('/keranjang', [CartController::class, 'clear'])->name('keranjang.clear');
     Route::patch('/keranjang/{item}', [CartController::class, 'update'])->name('keranjang.update');
     Route::delete('/keranjang/{item}', [CartController::class, 'destroy'])->name('keranjang.destroy');
+
+    // Checkout & Pemesanan Pelanggan (FRI-04)
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::get('/pesanan/{order}/pembayaran', [OrderController::class, 'pembayaran'])->name('pesanan.pembayaran');
+    Route::post('/pesanan/{order}/pembayaran', [OrderController::class, 'uploadBukti'])->name('pesanan.uploadBukti');
+    Route::get('/pesanan/{order}', [OrderController::class, 'show'])->name('pesanan.show');
+    Route::post('/pesanan/{order}/batal', [OrderController::class, 'cancel'])->name('pesanan.cancel');
 });
 
 
@@ -145,6 +156,12 @@ Route::middleware(['auth', EnsureUserIsAdmin::class])->prefix('admin')->name('ad
     Route::get('/penerimaan-barang', [ReceivingController::class, 'index'])->name('penerimaan.index');
     Route::get('/penerimaan-barang/{id}', [ReceivingController::class, 'show'])->name('penerimaan.show');
     Route::post('/penerimaan-barang/{id}', [ReceivingController::class, 'store'])->name('penerimaan.store');
+
+    // Fitur FRI-04: Pengelolaan Pesanan Pelanggan & Verifikasi Pembayaran
+    Route::get('/pesanan', [OrderManagementController::class, 'index'])->name('pesanan.index');
+    Route::get('/pesanan/{order}', [OrderManagementController::class, 'show'])->name('pesanan.show');
+    Route::post('/pesanan/{order}/verifikasi', [OrderManagementController::class, 'verify'])->name('pesanan.verify');
+    Route::post('/pesanan/{order}/tolak', [OrderManagementController::class, 'reject'])->name('pesanan.reject');
 });
 
 

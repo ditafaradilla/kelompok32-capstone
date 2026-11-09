@@ -60,3 +60,4 @@ class CartItem extends Model
         return $price * $this->jumlah;
     }
 }
+

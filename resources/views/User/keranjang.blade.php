@@ -219,7 +219,6 @@
                     </div>
 
                     <!-- Tombol Checkout -->
-                    {{-- TODO FRI-04: tautkan ke route('checkout.index') setelah fitur checkout selesai --}}
                     @if($summary['has_stock_issue'])
                         <button type="button" 
                                 disabled 
@@ -232,9 +231,8 @@
                             Ada item yang melebihi stok tersedia. Harap sesuaikan sebelum checkout.
                         </p>
                     @else
-                        <a href="#" 
-                           class="w-full h-12 rounded-2xl bg-primary hover:bg-surface-tint text-on-primary font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
-                           onclick="alert('Fitur Checkout akan segera hadir pada FRI-04.'); return false;">
+                        <a href="{{ route('checkout.index') }}" 
+                           class="w-full h-12 rounded-2xl bg-primary hover:bg-surface-tint text-on-primary font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer">
                             <span>Lanjut ke Checkout</span>
                             <span class="material-symbols-outlined text-sm">arrow_forward</span>
                         </a>
@@ -259,3 +257,4 @@
 
 </div>
 @endsection
+

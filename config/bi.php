@@ -24,23 +24,22 @@ return [
         // Tabel pesanan
         'orders_table'  => 'orders',
         'orders_pk'     => 'id',
-        'order_date'    => 'created_at',
-        'order_status'  => 'status',
-        // Status pesanan yang dianggap terjual, mis. ['dibayar', 'dikirim', 'selesai'].
-        // Kosongkan ([]) bila semua pesanan dihitung.
-        'paid_statuses' => [],
+        'order_date'    => 'tanggal_pesanan',
+        'order_status'  => 'status_pesanan',
+        // Status pesanan yang dianggap terjual
+        'paid_statuses' => ['diproses', 'dikirim', 'selesai'],
 
         // Tabel item pesanan
         'items_table'     => 'order_items',
         'item_order_fk'   => 'order_id',
         'item_product_fk' => 'product_id',
-        'item_qty'        => 'quantity',
-        'item_price'      => 'price',      // harga satuan saat dibeli
+        'item_qty'        => 'jumlah',
+        'item_price'      => 'harga_satuan',      // harga satuan saat dibeli
 
         // Tabel produk
         'products_table' => 'products',
         'products_pk'    => 'id',
         'product_name'   => 'name',
-        'product_stock'  => 'stock',       // isi null jika tidak ada kolom stok
+        'product_stock'  => null,       // isi null jika tidak ada kolom stok
     ],
 ];

@@ -94,3 +94,4 @@ class CartController extends Controller
         return back()->with('success', 'Keranjang belanja berhasil dikosongkan.');
     }
 }
+
