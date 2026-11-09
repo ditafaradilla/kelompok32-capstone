@@ -53,11 +53,6 @@ class DatabaseSeeder extends Seeder
                 'role' => 'user',
                 'phone' => '089876543210',
                 'address' => 'Jl. Boulevard Raya No. 12, Jakarta',
-                'baby_name' => 'Adiba',
-                'gender' => 'perempuan',
-                'baby_age' => '4 Bulan',
-                'baby_weight' => '6.5',
-                'baby_height' => '63',
             ]
         );
 

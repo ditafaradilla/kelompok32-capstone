@@ -24,11 +24,6 @@ class User extends Authenticatable
         'photo',
         'phone',
         'address',
-        'baby_name',
-        'gender',
-        'baby_age',
-        'baby_weight',
-        'baby_height',
     ];
 
     /**

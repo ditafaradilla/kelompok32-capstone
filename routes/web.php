@@ -17,6 +17,8 @@ use App\Http\Controllers\Admin\ForecastController;
 use App\Http\Controllers\Admin\SalesDashboardController;
 use App\Http\Controllers\User\CatalogController;
 use App\Http\Controllers\User\SizeGuideController;
+use App\Http\Controllers\User\ProfileController;
+use App\Http\Controllers\User\BabyController;
 use App\Http\Middleware\EnsureUserIsAdmin;
 
 /*
@@ -140,95 +142,20 @@ Route::middleware(['auth', EnsureUserIsAdmin::class])->prefix('admin')->name('ad
 
 /*
 |--------------------------------------------------------------------------
-| 4. EDIT PROFILE ROUTES
+| 4. PROFILE & BABY ROUTES (FRI-02)
 |--------------------------------------------------------------------------
 */
 
-Route::get('/dashboard/edit-profil', function () {
-    return view('User.edit-profil');
-})->name('profile.edit')->middleware('auth');
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard/edit-profil', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::post('/dashboard/edit-profil', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/dashboard/edit-profil/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 
-Route::post('/dashboard/edit-profil', function (Request $request) {
-    $request->validate([
-        'name'        => 'required|string|max:255',
-        'email'       => 'required|string|email|max:255|unique:users,email,' . Auth::id(),
-        'phone'       => 'nullable|string|max:20',
-        'address'     => 'nullable|string',
-        'baby_name'   => 'nullable|string|max:255',
-        'gender'      => 'nullable|string|in:laki-laki,perempuan',
-        'baby_age'    => 'nullable|string|max:50',
-        'baby_weight' => 'nullable|string|max:50',
-        'baby_height' => 'nullable|string|max:50',
-        'photo'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
-    ]);
-
-    $user = Auth::user();
-
-    if ($request->boolean('remove_photo') || $request->input('remove_photo') === '1') {
-        if (!empty($user->photo) && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->photo)) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($user->photo);
-        }
-        $user->photo = null;
-    } elseif ($request->hasFile('photo')) {
-        if (!empty($user->photo) && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->photo)) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($user->photo);
-        }
-
-        $path = $request->file('photo')->store('profiles', 'public');
-        $user->photo = $path;
-    }
-
-    $user->name        = $request->name;
-    $user->email       = $request->email;
-    $user->phone       = $request->phone;
-    $user->address     = $request->address;
-    $user->baby_name   = $request->baby_name;
-    $user->gender      = $request->gender;
-    $user->baby_age    = $request->baby_age;
-    $user->baby_weight = $request->baby_weight;
-    $user->baby_height = $request->baby_height;
-
-    $user->save();
-
-    // Sinkronisasi sementara ke tabel babies (FRI-01)
-    if ($request->filled('baby_name')) {
-        $months = 0;
-        if (!empty($request->baby_age) && preg_match('/(\d+)/', $request->baby_age, $matches)) {
-            $months = (int) $matches[1];
-        }
-
-        $birthDate = \Carbon\Carbon::now()->subMonths($months)->toDateString();
-        if ($request->filled('tanggal_lahir')) {
-            $birthDate = $request->tanggal_lahir;
-        }
-
-        $cleanWeight = !empty($request->baby_weight) ? (float) str_replace(',', '.', preg_replace('/[^\d.,]/', '', $request->baby_weight)) : 5.0;
-        $cleanHeight = !empty($request->baby_height) ? (float) str_replace(',', '.', preg_replace('/[^\d.,]/', '', $request->baby_height)) : 55.0;
-        $gender = ($request->gender === 'perempuan') ? 'perempuan' : 'laki-laki';
-
-        \App\Models\Baby::updateOrCreate(
-            ['user_id' => $user->id],
-            [
-                'nama_bayi'     => $request->baby_name,
-                'tanggal_lahir' => $birthDate,
-                'jenis_kelamin' => $gender,
-                'berat_badan'   => $cleanWeight,
-                'tinggi_badan'  => $cleanHeight,
-            ]
-        );
-    }
-
-    // Validasi redirect hanya ke URL internal (tolak redirect eksternal)
-    $redirectUrl = $request->input('redirect');
-    if ($redirectUrl && is_string($redirectUrl)) {
-        $parsed = parse_url($redirectUrl);
-        if (!isset($parsed['host']) && str_starts_with($redirectUrl, '/') && !str_starts_with($redirectUrl, '//')) {
-            return redirect($redirectUrl)->with('success', 'Profil dan data si kecil berhasil disimpan!');
-        }
-    }
-
-    return redirect()->route('profile.edit')->with('success', 'Perubahan profil berhasil disimpan!');
-})->name('profile.update')->middleware('auth');
+    // Data Bayi
+    Route::post('/bayi', [BabyController::class, 'store'])->name('bayi.store');
+    Route::put('/bayi/{baby}', [BabyController::class, 'update'])->name('bayi.update');
+    Route::delete('/bayi/{baby}', [BabyController::class, 'destroy'])->name('bayi.destroy');
+});
 
 
 /*

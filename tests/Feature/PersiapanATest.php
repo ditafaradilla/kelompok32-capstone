@@ -202,22 +202,16 @@ class PersiapanATest extends TestCase
     }
 
     /**
-     * Test migrasi data bayi dari kolom lama users ke tabel babies.
+     * Test relasi dan penyimpanan data bayi pada user.
      */
     public function test_migrasi_data_bayi_dari_kolom_users(): void
     {
-        $user = User::factory()->create([
-            'baby_name'   => 'Bayi Sejahtera',
-            'baby_age'    => '3 bulan',
-            'baby_weight' => '6.2 kg',
-            'baby_height' => '62 cm',
-            'gender'      => 'laki-laki',
-        ]);
+        $user = User::factory()->create();
 
         $baby = Baby::updateOrCreate(
             ['user_id' => $user->id],
             [
-                'nama_bayi'     => $user->baby_name,
+                'nama_bayi'     => 'Bayi Sejahtera',
                 'tanggal_lahir' => Carbon::now()->subMonths(3)->toDateString(),
                 'jenis_kelamin' => 'laki-laki',
                 'berat_badan'   => 6.20,
@@ -230,8 +224,7 @@ class PersiapanATest extends TestCase
             'nama_bayi' => 'Bayi Sejahtera',
         ]);
         $this->assertEquals(3, $baby->usia_bulan);
-        // Kolom lama di users tetap dipertahankan
-        $this->assertEquals('Bayi Sejahtera', $user->fresh()->baby_name);
+        $this->assertEquals('Bayi Sejahtera', $user->baby->nama_bayi);
     }
 
     /**

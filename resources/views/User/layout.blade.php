@@ -128,14 +128,8 @@
                     </button>
                 </div>
 
-                <!-- User Profile & Logout -->
-                <div class="flex items-center gap-2 pl-1 sm:pl-2">
-                    <div class="hidden sm:flex flex-col text-right">
-                        <span class="text-xs font-semibold text-on-surface leading-tight max-w-[120px] truncate">
-                            {{ $userName = Auth::user()->name ?? 'User' }}
-                        </span>
-                    </div>
-
+                <!-- User Profile & Dropdown Navigation -->
+                <div class="relative" x-data="{ open: false }" @click.outside="open = false">
                     @php
                         $userName = Auth::user()->name ?? 'User';
                         $words = explode(' ', trim($userName));
@@ -147,21 +141,41 @@
                         }
                     @endphp
 
-                    <a href="{{ route('profile.edit') }}" class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold text-xs hover:opacity-90 transition-opacity shadow-sm overflow-hidden shrink-0" title="Edit Profil">
-                        @if(!empty(Auth::user()->photo))
-                            <img src="{{ asset('storage/' . Auth::user()->photo) }}" alt="Foto" class="w-full h-full object-cover" />
-                        @else
-                            {{ $initials }}
-                        @endif
-                    </a> 
+                    <button @click="open = !open" type="button" class="flex items-center gap-2 pl-1 sm:pl-2 py-1 rounded-full hover:bg-surface-container-low transition-colors cursor-pointer" title="Profil & Data Bayi">
+                        <div class="hidden sm:flex flex-col text-right">
+                            <span class="text-xs font-semibold text-on-surface leading-tight max-w-[120px] truncate">
+                                {{ $userName }}
+                            </span>
+                        </div>
+                        <div class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold text-xs shadow-sm overflow-hidden shrink-0">
+                            @if(!empty(Auth::user()->photo))
+                                <img src="{{ asset('storage/' . Auth::user()->photo) }}" alt="Foto" class="w-full h-full object-cover" />
+                            @else
+                                {{ $initials }}
+                            @endif
+                        </div>
+                        <span class="material-symbols-outlined text-outline text-xs hidden sm:inline transition-transform duration-200" :class="open ? 'rotate-180' : ''">expand_more</span>
+                    </button>
 
-                    <!-- Tombol Logout -->
-                    <form action="{{ route('logout') }}" method="POST" class="inline">
-                        @csrf
-                        <button type="submit" class="w-8 h-8 rounded-full bg-error-container text-error flex items-center justify-center hover:bg-error hover:text-on-error transition-all shadow-xs shrink-0" title="Keluar / Logout">
-                            <span class="material-symbols-outlined text-sm">logout</span>
-                        </button>
-                    </form>
+                    <!-- Dropdown Menu -->
+                    <div x-show="open" x-transition.origin.top.right class="absolute right-0 mt-2 w-56 rounded-2xl bg-surface-container-lowest border border-surface-container shadow-lg py-2 z-50" style="display: none;">
+                        <div class="px-4 py-2 border-b border-surface-container">
+                            <p class="text-xs font-bold text-on-surface truncate">{{ Auth::user()->name }}</p>
+                            <p class="text-[11px] text-on-surface-variant truncate">{{ Auth::user()->email }}</p>
+                        </div>
+                        <a href="{{ route('profile.edit') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-on-surface hover:bg-surface-container-low transition-colors">
+                            <span class="material-symbols-outlined text-primary text-base">manage_accounts</span>
+                            <span>Profil &amp; Data Bayi</span>
+                        </a>
+                        <div class="border-t border-surface-container my-1"></div>
+                        <form action="{{ route('logout') }}" method="POST" class="w-full">
+                            @csrf
+                            <button type="submit" class="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-error hover:bg-error-container/40 transition-colors text-left cursor-pointer">
+                                <span class="material-symbols-outlined text-base">logout</span>
+                                <span>Keluar</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
             </div>

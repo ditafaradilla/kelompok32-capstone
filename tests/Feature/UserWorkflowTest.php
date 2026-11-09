@@ -109,11 +109,6 @@ class UserWorkflowTest extends TestCase
             'email' => $user->email,
             'phone' => '08123456789',
             'address' => 'Jl. Merdeka No. 1',
-            'baby_name' => 'Baby Alex',
-            'gender' => 'laki-laki',
-            'baby_age' => '12 Bulan',
-            'baby_weight' => '10 kg',
-            'baby_height' => '75 cm',
             'photo' => $file,
         ]);
 
@@ -124,7 +119,8 @@ class UserWorkflowTest extends TestCase
         $this->assertDatabaseHas('users', [
             'id' => $user->id,
             'name' => 'Updated Name',
-            'baby_name' => 'Baby Alex',
+            'phone' => '08123456789',
+            'address' => 'Jl. Merdeka No. 1',
         ]);
     }
 

@@ -68,7 +68,6 @@ class FRI01RekomendasiUkuranTest extends TestCase
         $response = $this->actingAs($user)->post('/dashboard/edit-profil', [
             'name'      => 'Bunda Test',
             'email'     => $user->email,
-            'baby_name' => 'Bayi Test',
             'redirect'  => 'https://evil-phishing.com/steal-data',
         ]);
 
@@ -87,7 +86,6 @@ class FRI01RekomendasiUkuranTest extends TestCase
         $response = $this->actingAs($user)->post('/dashboard/edit-profil', [
             'name'      => 'Bunda Test',
             'email'     => $user->email,
-            'baby_name' => 'Bayi Test',
             'redirect'  => '/produk/1',
         ]);
 
