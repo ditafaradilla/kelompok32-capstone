@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Location;
 use App\Models\Product;
 use App\Models\ProductStock;
+use App\Models\ProductVariant;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use App\Models\Supplier;
@@ -36,22 +37,30 @@ class InventoryManagementTest extends TestCase
             'price' => 100000,
             'cost_price' => 50000,
             'min_stock' => 3,
-            'stocks' => [
-                $store->id => 4,
-                $warehouse->id => 8,
+            'variants' => [
+                [
+                    'ukuran' => '0-3M',
+                    'warna'  => 'Putih',
+                    'sku'    => 'BC-BYI-001-01',
+                    'stocks' => [
+                        $store->id => 4,
+                        $warehouse->id => 8,
+                    ],
+                ],
             ],
         ]);
 
         $response->assertRedirect(route('admin.produk.index'));
         $product = Product::where('sku', 'BC-BYI-001')->firstOrFail();
+        $variant = $product->variants()->first();
         $this->assertSame(12, $product->total_stock);
         $this->assertDatabaseHas('product_stocks', [
-            'product_id' => $product->id,
+            'product_variant_id' => $variant->id,
             'location_id' => $store->id,
             'quantity' => 4,
         ]);
         $this->assertDatabaseHas('product_stocks', [
-            'product_id' => $product->id,
+            'product_variant_id' => $variant->id,
             'location_id' => $warehouse->id,
             'quantity' => 8,
         ]);
@@ -63,8 +72,16 @@ class InventoryManagementTest extends TestCase
             'price' => 120000,
             'cost_price' => 60000,
             'min_stock' => 3,
-            'stocks' => [
-                $store->id => 2,
+            'variants' => [
+                [
+                    'id' => $variant->id,
+                    'sku' => $variant->sku,
+                    'ukuran' => $variant->ukuran,
+                    'warna' => $variant->warna,
+                    'stocks' => [
+                        $store->id => 2,
+                    ],
+                ],
             ],
         ])->assertRedirect(route('admin.produk.index'));
 
@@ -73,7 +90,7 @@ class InventoryManagementTest extends TestCase
             'name' => 'Baju Bayi Organik',
         ]);
         $this->assertDatabaseHas('product_stocks', [
-            'product_id' => $product->id,
+            'product_variant_id' => $variant->id,
             'location_id' => $store->id,
             'quantity' => 2,
         ]);
@@ -83,7 +100,8 @@ class InventoryManagementTest extends TestCase
             ->assertRedirect(route('admin.produk.index'));
 
         $this->assertDatabaseMissing('products', ['id' => $product->id]);
-        $this->assertDatabaseMissing('product_stocks', ['product_id' => $product->id]);
+        $this->assertDatabaseMissing('product_variants', ['id' => $variant->id]);
+        $this->assertDatabaseMissing('product_stocks', ['product_variant_id' => $variant->id]);
     }
 
     public function test_admin_can_record_location_and_update_its_stock(): void
@@ -95,6 +113,13 @@ class InventoryManagementTest extends TestCase
             'price' => 50000,
             'cost_price' => 25000,
             'min_stock' => 2,
+        ]);
+
+        $variant = ProductVariant::create([
+            'product_id' => $product->id,
+            'sku' => 'BC-BYI-002-VAR1',
+            'ukuran' => '0-3M',
+            'warna' => 'Biru',
         ]);
 
         $this->actingAs($this->admin())
@@ -111,12 +136,12 @@ class InventoryManagementTest extends TestCase
         $this->actingAs($this->admin())
             ->post(route('admin.lokasi.updateStock'), [
                 'location_id' => $location->id,
-                'stocks' => [$product->id => 6],
+                'stocks' => [$variant->id => 6],
             ])
             ->assertRedirect();
 
         $this->assertDatabaseHas('product_stocks', [
-            'product_id' => $product->id,
+            'product_variant_id' => $variant->id,
             'location_id' => $location->id,
             'quantity' => 6,
         ]);
@@ -135,13 +160,20 @@ class InventoryManagementTest extends TestCase
             'min_stock' => 2,
         ]);
 
+        $variant = ProductVariant::create([
+            'product_id' => $product->id,
+            'sku' => 'BC-BYI-003-VAR1',
+            'ukuran' => '3-6M',
+            'warna' => 'Cokelat',
+        ]);
+
         $response = $this->actingAs($this->admin())->post(route('admin.pemesanan.store'), [
             'supplier_id' => $supplier->id,
             'target_location_id' => $location->id,
             'order_date' => now()->toDateString(),
             'notes' => 'Pesanan stok bulanan',
             'items' => [[
-                'product_id' => $product->id,
+                'product_variant_id' => $variant->id,
                 'quantity' => 3,
                 'unit_cost' => 75000,
             ]],
@@ -154,6 +186,7 @@ class InventoryManagementTest extends TestCase
         $this->assertDatabaseHas('purchase_order_items', [
             'purchase_order_id' => $order->id,
             'product_id' => $product->id,
+            'product_variant_id' => $variant->id,
             'quantity_ordered' => 3,
             'quantity_received' => 0,
             'subtotal' => 225000,
@@ -172,8 +205,14 @@ class InventoryManagementTest extends TestCase
             'cost_price' => 20000,
             'min_stock' => 5,
         ]);
-        ProductStock::create([
+        $variant = ProductVariant::create([
             'product_id' => $product->id,
+            'sku' => 'BC-BYI-004-VAR1',
+            'ukuran' => 'NB',
+            'warna' => 'Kuning',
+        ]);
+        ProductStock::create([
+            'product_variant_id' => $variant->id,
             'location_id' => $location->id,
             'quantity' => 2,
         ]);
@@ -187,6 +226,7 @@ class InventoryManagementTest extends TestCase
         $item = PurchaseOrderItem::create([
             'purchase_order_id' => $order->id,
             'product_id' => $product->id,
+            'product_variant_id' => $variant->id,
             'quantity_ordered' => 4,
             'quantity_received' => 0,
             'unit_cost' => 20000,
@@ -208,7 +248,7 @@ class InventoryManagementTest extends TestCase
             });
 
         $this->assertDatabaseHas('product_stocks', [
-            'product_id' => $product->id,
+            'product_variant_id' => $variant->id,
             'location_id' => $location->id,
             'quantity' => 3,
         ]);
