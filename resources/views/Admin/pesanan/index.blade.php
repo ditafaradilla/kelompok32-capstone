@@ -106,8 +106,8 @@
                         <th class="py-3.5 px-4">Penerima & Alamat</th>
                         <th class="py-3.5 px-4">Rincian Item</th>
                         <th class="py-3.5 px-4">Total Biaya</th>
-                        <th class="py-3.5 px-4">Pembayaran</th>
-                        <th class="py-3.5 px-4 text-center">Status Pesanan</th>
+                        <th class="py-3.5 px-4 whitespace-nowrap min-w-[140px]">Pembayaran</th>
+                        <th class="py-3.5 px-4 text-center whitespace-nowrap min-w-[170px]">Status Pesanan</th>
                         <th class="py-3.5 px-4 text-right">Aksi</th>
                     </tr>
                 </thead>
@@ -148,9 +148,9 @@
                             </td>
 
                             <!-- Pembayaran -->
-                            <td class="py-3.5 px-4">
+                            <td class="py-3.5 px-4 whitespace-nowrap min-w-[140px]">
                                 <div class="font-medium text-on-surface">{{ $order->payment?->metode_label ?? 'Transfer Bank' }}</div>
-                                <div>
+                                <div class="mt-0.5">
                                     @php
                                         $payClass = match($order->payment?->status_pembayaran) {
                                             \App\Models\Payment::STATUS_LUNAS => 'bg-green-100 text-green-800',
@@ -159,14 +159,14 @@
                                             default => 'bg-amber-100 text-amber-800',
                                         };
                                     @endphp
-                                    <span class="inline-block px-2 py-0.5 rounded text-[10px] {{ $payClass }}">
+                                    <span class="inline-block px-2 py-0.5 rounded text-[10px] whitespace-nowrap {{ $payClass }}">
                                         {{ $order->payment?->status_label ?? 'Belum Bayar' }}
                                     </span>
                                 </div>
                             </td>
 
                             <!-- Status Pesanan -->
-                            <td class="py-3.5 px-4 text-center">
+                            <td class="py-3.5 px-4 text-center whitespace-nowrap min-w-[170px]">
                                 @php
                                     $orderBadge = match($order->status_pesanan) {
                                         \App\Models\Order::STATUS_MENUNGGU_PEMBAYARAN => 'bg-amber-100 text-amber-800 border-amber-300',
@@ -178,7 +178,7 @@
                                         default                                        => 'bg-gray-100 text-gray-800 border-gray-300',
                                     };
                                 @endphp
-                                <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border {{ $orderBadge }}">
+                                <span class="inline-block px-3 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap border {{ $orderBadge }}">
                                     {{ $order->status_label }}
                                 </span>
                             </td>

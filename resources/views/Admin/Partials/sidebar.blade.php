@@ -89,13 +89,13 @@
                     <span>Penerimaan Barang</span>
                 </a>
 
-                {{-- 3. PESANAN & TRANSAKSI (FRI-04) --}}
+                {{-- 3. PESANAN (FRI-04) --}}
                 <a class="{{ $item }} {{ request()->routeIs('admin.pesanan.*') ? $active : $idle }}"
-                   data-path="pesanan-dan-transaksi"
+                   data-path="pesanan"
                    href="{{ route('admin.pesanan.index') }}">
 
                     <span class="material-symbols-outlined text-[20px]">receipt_long</span>
-                    <span>Pesanan &amp; Transaksi</span>
+                    <span>Pesanan</span>
                 </a>
 
                 {{-- 4. PELANGGAN --}}

@@ -126,6 +126,12 @@
                         <span class="material-symbols-outlined text-[20px]">inventory_2</span>
                         <span>Penerimaan Barang</span>
                     </a>
+
+                    <!-- Fitur FRI-04: Pesanan Pelanggan -->
+                    <a href="{{ route('admin.pesanan.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all {{ request()->routeIs('admin.pesanan.*') ? 'bg-primary-container text-on-primary-container font-semibold shadow-xs' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface' }}">
+                        <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+                        <span>Pesanan</span>
+                    </a>
                 </nav>
             </div>
         </div>
