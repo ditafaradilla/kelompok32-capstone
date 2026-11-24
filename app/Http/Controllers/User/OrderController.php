@@ -70,7 +70,7 @@ class OrderController extends Controller
     }
 
     /**
-     * Tampilkan detail pesanan pelanggan (diarahkan ke pelacakan pesanan FRI-05).
+     * Tampilkan detail pesanan pelanggan (FRI-04, FRI-05, & FRI-06).
      */
     public function show(Order $order)
     {
@@ -78,7 +78,9 @@ class OrderController extends Controller
             abort(403, 'Anda tidak memiliki hak akses untuk pesanan ini.');
         }
 
-        return redirect()->route('pesanan.lacak', $order);
+        $order->load(['payment', 'items.variant', 'items.product', 'histories.changer']);
+
+        return view('User.pesanan.show', compact('order'));
     }
 
     /**

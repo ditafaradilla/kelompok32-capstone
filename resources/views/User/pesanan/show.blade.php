@@ -9,7 +9,7 @@
     <nav class="flex items-center gap-1.5 text-xs text-outline pt-2 flex-wrap">
         <a href="{{ route('dashboard') }}" class="hover:text-primary transition-colors">Beranda</a>
         <span class="material-symbols-outlined text-xs">chevron_right</span>
-        <a href="{{ route('produk.index') }}" class="hover:text-primary transition-colors">Katalog</a>
+        <a href="{{ route('riwayat.index') }}" class="hover:text-primary transition-colors">Riwayat Pembelian</a>
         <span class="material-symbols-outlined text-xs">chevron_right</span>
         <span class="text-on-surface font-semibold">Pesanan #{{ $order->nomor_pesanan }}</span>
     </nav>
@@ -128,6 +128,15 @@
                             <!-- Subtotal Item -->
                             <div class="text-right shrink-0">
                                 <span class="font-bold text-sm text-on-surface">{{ rupiah($item->subtotal) }}</span>
+                                @if($order->status_pesanan === \App\Models\Order::STATUS_SELESAI)
+                                    <div class="mt-2">
+                                        {{-- TODO FRI-07: ulasan produk --}}
+                                        <a href="#" class="inline-flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-700 hover:underline">
+                                            <span class="material-symbols-outlined text-sm">hotel_class</span>
+                                            <span>Beri Ulasan</span>
+                                        </a>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     @endforeach
@@ -164,6 +173,41 @@
                         </div>
                     @endif
                 </div>
+            </div>
+
+            <!-- Riwayat Status Ringkas (FRI-06) -->
+            <div class="bg-surface-container-lowest rounded-3xl p-6 sm:p-8 border border-surface-container shadow-xs space-y-4">
+                <div class="flex items-center justify-between border-b border-surface-container pb-3">
+                    <div class="flex items-center gap-2.5">
+                        <span class="material-symbols-outlined text-primary text-xl">history</span>
+                        <h2 class="text-base font-bold text-on-surface">Riwayat Status Pesanan</h2>
+                    </div>
+                    <a href="{{ route('pesanan.lacak', $order) }}" class="text-xs font-bold text-primary hover:underline flex items-center gap-1">
+                        <span>Lacak Detail</span>
+                        <span class="material-symbols-outlined text-xs">arrow_forward</span>
+                    </a>
+                </div>
+
+                @if($order->histories && $order->histories->isNotEmpty())
+                    <div class="space-y-3">
+                        @foreach($order->histories as $history)
+                            <div class="flex items-start gap-3 text-xs">
+                                <span class="w-2.5 h-2.5 rounded-full mt-1.5 shrink-0 {{ $loop->last ? 'bg-primary ring-4 ring-primary/20' : 'bg-outline-variant' }}"></span>
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                                        <span class="font-bold text-on-surface">{{ $history->status_label }}</span>
+                                        <span class="text-[11px] text-outline">{{ $history->created_at->translatedFormat('d M Y, H:i') }} WIB</span>
+                                    </div>
+                                    @if($history->catatan)
+                                        <p class="text-on-surface-variant text-[11px] mt-0.5">{{ $history->catatan }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-xs text-outline italic">Belum ada riwayat perubahan status.</p>
+                @endif
             </div>
 
         </div>
@@ -255,6 +299,13 @@
                         </a>
                     @endif
 
+                    <!-- Tombol Lacak Pesanan -->
+                    <a href="{{ route('pesanan.lacak', $order) }}" 
+                       class="w-full h-10 rounded-xl bg-primary-fixed text-on-primary-fixed-variant text-xs font-bold hover:bg-primary/20 transition-colors flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-base">route</span>
+                        <span>Lacak Status &amp; Pengiriman</span>
+                    </a>
+
                     <!-- Hubungi Bantuan WhatsApp -->
                     @php
                         $waMsg = urlencode("Halo Admin Baby Corner, saya ingin bertanya tentang pesanan #" . $order->nomor_pesanan);
@@ -268,10 +319,10 @@
                         <span>Bantuan CS via WhatsApp</span>
                     </a>
 
-                    <a href="{{ route('produk.index') }}" 
+                    <a href="{{ route('riwayat.index') }}" 
                        class="w-full h-10 rounded-xl bg-surface-container-low text-on-surface-variant text-xs font-bold hover:text-primary transition-colors flex items-center justify-center gap-1.5">
                         <span class="material-symbols-outlined text-sm">arrow_back</span>
-                        <span>Kembali Belanja</span>
+                        <span>Kembali ke Riwayat Pembelian</span>
                     </a>
                 </div>
 

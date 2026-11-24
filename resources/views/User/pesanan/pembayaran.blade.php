@@ -9,7 +9,9 @@
     <nav class="flex items-center gap-1.5 text-xs text-outline pt-2 flex-wrap">
         <a href="{{ route('dashboard') }}" class="hover:text-primary transition-colors">Beranda</a>
         <span class="material-symbols-outlined text-xs">chevron_right</span>
-        <a href="{{ route('pesanan.lacak', $order) }}" class="hover:text-primary transition-colors">Pesanan #{{ $order->nomor_pesanan }}</a>
+        <a href="{{ route('riwayat.index') }}" class="hover:text-primary transition-colors">Riwayat Pembelian</a>
+        <span class="material-symbols-outlined text-xs">chevron_right</span>
+        <a href="{{ route('pesanan.show', $order) }}" class="hover:text-primary transition-colors">Pesanan #{{ $order->nomor_pesanan }}</a>
         <span class="material-symbols-outlined text-xs">chevron_right</span>
         <span class="text-on-surface font-semibold">Instruksi Pembayaran</span>
     </nav>

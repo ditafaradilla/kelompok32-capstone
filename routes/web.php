@@ -23,6 +23,7 @@ use App\Http\Controllers\User\BabyController;
 use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\User\CheckoutController;
 use App\Http\Controllers\User\OrderController;
+use App\Http\Controllers\User\OrderHistoryController;
 use App\Http\Middleware\EnsureUserIsAdmin;
 
 /*
@@ -112,6 +113,8 @@ Route::middleware('auth')->group(function () {
     // Checkout & Pemesanan Pelanggan (FRI-04 & FRI-05)
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    // Riwayat Pembelian & Detail Pesanan (FRI-04, FRI-05, & FRI-06)
+    Route::get('/riwayat-pembelian', [OrderHistoryController::class, 'index'])->name('riwayat.index');
     Route::get('/pesanan/{order}/pembayaran', [OrderController::class, 'pembayaran'])->name('pesanan.pembayaran');
     Route::post('/pesanan/{order}/pembayaran', [OrderController::class, 'uploadBukti'])->name('pesanan.uploadBukti');
     Route::get('/pesanan/{order}', [OrderController::class, 'show'])->name('pesanan.show');

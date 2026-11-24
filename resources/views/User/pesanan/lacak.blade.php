@@ -9,7 +9,7 @@
     <nav class="flex items-center gap-1.5 text-xs text-outline pt-2 flex-wrap">
         <a href="{{ route('dashboard') }}" class="hover:text-primary transition-colors">Beranda</a>
         <span class="material-symbols-outlined text-xs">chevron_right</span>
-        <a href="{{ route('produk.index') }}" class="hover:text-primary transition-colors">Katalog</a>
+        <a href="{{ route('riwayat.index') }}" class="hover:text-primary transition-colors">Riwayat Pembelian</a>
         <span class="material-symbols-outlined text-xs">chevron_right</span>
         <span class="text-on-surface font-semibold">Pelacakan Pesanan #{{ $order->nomor_pesanan }}</span>
     </nav>
@@ -407,6 +407,12 @@
                         </a>
                     @endif
 
+                    <a href="{{ route('pesanan.show', $order) }}" 
+                       class="w-full h-10 rounded-xl bg-surface-container text-on-surface text-xs font-bold hover:bg-surface-container-high transition-colors flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-base">visibility</span>
+                        <span>Lihat Rincian Pesanan</span>
+                    </a>
+
                     <!-- Hubungi Bantuan WhatsApp -->
                     @php
                         $waMsg = urlencode("Halo Admin Baby Corner, saya ingin bertanya tentang pelacakan pesanan #" . $order->nomor_pesanan);
@@ -420,10 +426,10 @@
                         <span>Bantuan CS via WhatsApp</span>
                     </a>
 
-                    <a href="{{ route('produk.index') }}" 
+                    <a href="{{ route('riwayat.index') }}" 
                        class="w-full h-10 rounded-xl bg-surface-container-low text-on-surface-variant text-xs font-bold hover:text-primary transition-colors flex items-center justify-center gap-1.5">
                         <span class="material-symbols-outlined text-sm">arrow_back</span>
-                        <span>Kembali Belanja</span>
+                        <span>Kembali ke Riwayat Pembelian</span>
                     </a>
                 </div>
 

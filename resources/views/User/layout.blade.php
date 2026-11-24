@@ -172,6 +172,10 @@
                             <span class="material-symbols-outlined text-primary text-base">manage_accounts</span>
                             <span>Profil &amp; Data Bayi</span>
                         </a>
+                        <a href="{{ route('riwayat.index') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-on-surface hover:bg-surface-container-low transition-colors {{ request()->routeIs('riwayat.*') ? 'text-primary bg-surface-container-low' : '' }}">
+                            <span class="material-symbols-outlined text-primary text-base">receipt_long</span>
+                            <span>Riwayat Pembelian</span>
+                        </a>
                         <div class="border-t border-surface-container my-1"></div>
                         <form action="{{ route('logout') }}" method="POST" class="w-full">
                             @csrf
