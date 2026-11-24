@@ -9,7 +9,7 @@
     <nav class="flex items-center gap-1.5 text-xs text-outline pt-2 flex-wrap">
         <a href="{{ route('dashboard') }}" class="hover:text-primary transition-colors">Beranda</a>
         <span class="material-symbols-outlined text-xs">chevron_right</span>
-        <a href="{{ route('pesanan.show', $order) }}" class="hover:text-primary transition-colors">Pesanan #{{ $order->nomor_pesanan }}</a>
+        <a href="{{ route('pesanan.lacak', $order) }}" class="hover:text-primary transition-colors">Pesanan #{{ $order->nomor_pesanan }}</a>
         <span class="material-symbols-outlined text-xs">chevron_right</span>
         <span class="text-on-surface font-semibold">Instruksi Pembayaran</span>
     </nav>
@@ -57,8 +57,8 @@
                     <span>Admin kami sedang memeriksa bukti pembayaran Anda. Status akan diperbarui segera.</span>
                 </div>
             </div>
-            <a href="{{ route('pesanan.show', $order) }}" class="px-3.5 py-1.5 rounded-xl bg-amber-200 text-amber-900 font-bold text-xs hover:bg-amber-300 transition-colors shrink-0">
-                Lihat Detail Pesanan
+            <a href="{{ route('pesanan.lacak', $order) }}" class="px-3.5 py-1.5 rounded-xl bg-amber-200 text-amber-900 font-bold text-xs hover:bg-amber-300 transition-colors shrink-0">
+                Lihat Pelacakan Pesanan
             </a>
         </div>
     @endif

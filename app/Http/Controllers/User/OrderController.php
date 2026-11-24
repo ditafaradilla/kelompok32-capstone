@@ -3,13 +3,10 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Models\Location;
 use App\Models\Order;
 use App\Models\Payment;
-use App\Models\ProductStock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
@@ -63,14 +60,17 @@ class OrderController extends Controller
         $payment->tanggal_bayar = now();
         $payment->save();
 
-        $order->status_pesanan = Order::STATUS_MENUNGGU_VERIFIKASI;
-        $order->save();
+        $order->changeStatus(
+            Order::STATUS_MENUNGGU_VERIFIKASI,
+            'Pelanggan mengunggah bukti pembayaran.',
+            Auth::id()
+        );
 
         return back()->with('success', 'Bukti pembayaran berhasil diunggah! Mohon menunggu verifikasi dari admin.');
     }
 
     /**
-     * Tampilkan detail pesanan pelanggan dan status terkininya.
+     * Tampilkan detail pesanan pelanggan (diarahkan ke pelacakan pesanan FRI-05).
      */
     public function show(Order $order)
     {
@@ -78,13 +78,51 @@ class OrderController extends Controller
             abort(403, 'Anda tidak memiliki hak akses untuk pesanan ini.');
         }
 
-        $order->load(['payment', 'items.variant', 'items.product']);
-
-        return view('User.pesanan.show', compact('order'));
+        return redirect()->route('pesanan.lacak', $order);
     }
 
     /**
-     * Batalkan pesanan oleh pelanggan selama masih menunggu pembayaran, kembalikan stok ke toko.
+     * Tampilkan halaman pelacakan pesanan pelanggan dengan status stepper dan timeline riwayat (FRI-05).
+     */
+    public function lacak(Order $order)
+    {
+        if ($order->user_id !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki hak akses untuk pesanan ini.');
+        }
+
+        $order->load(['payment', 'items.variant', 'items.product', 'histories.changer']);
+
+        return view('User.pesanan.lacak', compact('order'));
+    }
+
+    /**
+     * Konfirmasi pesanan diterima oleh pelanggan saat status sedang 'dikirim' (FRI-05).
+     */
+    public function terima(Order $order)
+    {
+        if ($order->user_id !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki hak akses untuk pesanan ini.');
+        }
+
+        if ($order->status_pesanan !== Order::STATUS_DIKIRIM) {
+            return back()->with('error', 'Pesanan hanya dapat dikonfirmasi diterima saat dalam status dikirim.');
+        }
+
+        try {
+            $order->changeStatus(
+                Order::STATUS_SELESAI,
+                'Pesanan telah diterima oleh pelanggan.',
+                Auth::id()
+            );
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('success', 'Terima kasih! Pesanan Anda telah selesai.');
+    }
+
+    /**
+     * Batalkan pesanan oleh pelanggan selama masih menunggu pembayaran, kembalikan stok ke toko (FRI-04 & FRI-05).
      */
     public function cancel(Order $order)
     {
@@ -96,42 +134,16 @@ class OrderController extends Controller
             return back()->with('error', 'Pesanan ini tidak dapat dibatalkan karena sudah diproses atau status tidak sesuai.');
         }
 
-        DB::transaction(function () use ($order) {
-            $order->load('items');
-
-            // Kembalikan stok item pesanan ke lokasi toko
-            foreach ($order->items as $item) {
-                $stockRecord = ProductStock::where('product_variant_id', $item->product_variant_id)
-                    ->whereHas('location', fn($q) => $q->where('type', 'toko'))
-                    ->orderByDesc('quantity')
-                    ->lockForUpdate()
-                    ->first();
-
-                if ($stockRecord) {
-                    $stockRecord->quantity += $item->jumlah;
-                    $stockRecord->save();
-                } else {
-                    $storeLocation = Location::where('type', 'toko')->first();
-                    if ($storeLocation) {
-                        ProductStock::create([
-                            'product_variant_id' => $item->product_variant_id,
-                            'location_id'        => $storeLocation->id,
-                            'quantity'           => $item->jumlah,
-                        ]);
-                    }
-                }
-            }
-
-            $order->status_pesanan = Order::STATUS_DIBATALKAN;
-            $order->save();
-
-            if ($order->payment) {
-                $order->payment->status_pembayaran = Payment::STATUS_DITOLAK;
-                $order->payment->save();
-            }
-        });
+        try {
+            $order->changeStatus(
+                Order::STATUS_DIBATALKAN,
+                'Pesanan dibatalkan oleh pelanggan.',
+                Auth::id()
+            );
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
 
         return back()->with('success', 'Pesanan berhasil dibatalkan dan stok produk telah dikembalikan ke toko.');
     }
 }
-

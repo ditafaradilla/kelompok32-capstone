@@ -158,6 +158,9 @@ class CheckoutController extends Controller
                     'status_pembayaran' => Payment::STATUS_BELUM_BAYAR,
                 ]);
 
+                // Catat riwayat awal status pesanan (FRI-05)
+                $order->recordInitialHistory('Pesanan berhasil dibuat, menunggu pembayaran pelanggan.', $user->id);
+
                 // 5. Kosongkan keranjang belanja pengguna
                 $cartService->clear($user);
 

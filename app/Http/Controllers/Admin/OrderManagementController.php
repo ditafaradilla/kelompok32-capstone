@@ -9,6 +9,7 @@ use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class OrderManagementController extends Controller
 {
@@ -42,6 +43,7 @@ class OrderManagementController extends Controller
             'menunggu_pembayaran' => Order::where('status_pesanan', Order::STATUS_MENUNGGU_PEMBAYARAN)->count(),
             'menunggu_verifikasi' => Order::where('status_pesanan', Order::STATUS_MENUNGGU_VERIFIKASI)->count(),
             'diproses'             => Order::where('status_pesanan', Order::STATUS_DIPROSES)->count(),
+            'dikirim'              => Order::where('status_pesanan', Order::STATUS_DIKIRIM)->count(),
             'selesai'              => Order::where('status_pesanan', Order::STATUS_SELESAI)->count(),
             'dibatalkan'           => Order::where('status_pesanan', Order::STATUS_DIBATALKAN)->count(),
         ];
@@ -50,11 +52,11 @@ class OrderManagementController extends Controller
     }
 
     /**
-     * Tampilkan detail pesanan pelanggan, bukti pembayaran, dan data pengiriman.
+     * Tampilkan detail pesanan pelanggan, bukti pembayaran, data pengiriman, dan riwayat status (FRI-05).
      */
     public function show(Order $order)
     {
-        $order->load(['user', 'payment', 'items.variant', 'items.product']);
+        $order->load(['user', 'payment', 'items.variant', 'items.product', 'histories.changer']);
 
         return view('Admin.pesanan.show', compact('order'));
     }
@@ -74,8 +76,11 @@ class OrderManagementController extends Controller
             $payment->status_pembayaran = Payment::STATUS_LUNAS;
             $payment->save();
 
-            $order->status_pesanan = Order::STATUS_DIPROSES;
-            $order->save();
+            $order->changeStatus(
+                Order::STATUS_DIPROSES,
+                'Pembayaran berhasil diverifikasi oleh admin.',
+                Auth::id()
+            );
 
             // 2. Catat tepat 1 transaksi pemasukan di tabel transactions (idempotent)
             $exists = Transaction::where('reference', $order->nomor_pesanan)->exists();
@@ -120,10 +125,61 @@ class OrderManagementController extends Controller
         $payment->catatan_admin = $request->catatan_admin;
         $payment->save();
 
-        $order->status_pesanan = Order::STATUS_MENUNGGU_PEMBAYARAN;
-        $order->save();
+        $order->changeStatus(
+            Order::STATUS_MENUNGGU_PEMBAYARAN,
+            'Bukti pembayaran ditolak admin: ' . $request->catatan_admin,
+            Auth::id()
+        );
 
         return back()->with('success', "Bukti pembayaran pesanan #{$order->nomor_pesanan} ditolak. Pesanan dikembalikan ke status menunggu pembayaran.");
     }
-}
 
+    /**
+     * Perbarui status pesanan secara manual oleh admin sesuai transisi yang sah (FRI-05).
+     */
+    public function updateStatus(Request $request, Order $order)
+    {
+        $allowedStatuses = $order->getNextAllowedStatuses();
+
+        if (empty($allowedStatuses)) {
+            return back()->with('error', 'Pesanan ini sudah mencapai status akhir dan tidak dapat diubah lagi.');
+        }
+
+        $rules = [
+            'status'  => ['required', 'string', Rule::in($allowedStatuses)],
+            'catatan' => ['nullable', 'string', 'max:500'],
+        ];
+
+        // Jika status yang dipilih adalah 'dikirim', wajib mengisi kurir & nomor resi
+        if ($request->status === Order::STATUS_DIKIRIM) {
+            $rules['kurir']      = ['required', 'string', 'max:100'];
+            $rules['nomor_resi'] = ['required', 'string', 'max:100'];
+        }
+
+        $messages = [
+            'status.required'     => 'Status baru wajib dipilih.',
+            'status.in'           => 'Status yang dipilih tidak sah untuk transisi pesanan saat ini.',
+            'kurir.required'      => 'Nama kurir / ekspedisi wajib diisi saat pesanan dikirim.',
+            'nomor_resi.required' => 'Nomor resi pengiriman wajib diisi saat pesanan dikirim.',
+            'catatan.max'         => 'Catatan maksimal 500 karakter.',
+        ];
+
+        $validated = $request->validate($rules, $messages);
+
+        try {
+            $order->changeStatus(
+                $validated['status'],
+                $validated['catatan'] ?? null,
+                Auth::id(),
+                $validated['kurir'] ?? null,
+                $validated['nomor_resi'] ?? null
+            );
+        } catch (\DomainException $e) {
+            return back()->with('error', $e->getMessage());
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal memperbarui status pesanan: ' . $e->getMessage());
+        }
+
+        return back()->with('success', "Status pesanan #{$order->nomor_pesanan} berhasil diperbarui menjadi '{$order->status_label}'.");
+    }
+}

@@ -8,11 +8,11 @@
 <div class="flex flex-col w-full gap-6">
 
     <!-- STATISTIK RINGKASAN STATUS PESANAN -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
         <!-- Semua -->
         <a href="{{ route('admin.pesanan.index') }}" 
            class="p-4 rounded-2xl border transition-all {{ !request('status') ? 'bg-primary/10 border-primary shadow-xs' : 'bg-surface-container-lowest border-surface-container hover:bg-surface-container-low' }}">
-            <span class="text-[11px] font-semibold text-outline block">Semua Pesanan</span>
+            <span class="text-[11px] font-semibold text-outline block">Semua</span>
             <span class="text-xl font-bold text-on-surface mt-1 block">{{ $counts['total'] }}</span>
         </a>
 
@@ -27,7 +27,7 @@
         <a href="{{ route('admin.pesanan.index', ['status' => \App\Models\Order::STATUS_MENUNGGU_VERIFIKASI]) }}" 
            class="p-4 rounded-2xl border transition-all {{ request('status') === \App\Models\Order::STATUS_MENUNGGU_VERIFIKASI ? 'bg-blue-100 border-blue-400 shadow-xs' : 'bg-blue-50/50 border-blue-200 hover:bg-blue-100/60' }}">
             <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold text-blue-800 block">Verifikasi Bukti</span>
+                <span class="text-[11px] font-bold text-blue-800 block">Verifikasi</span>
                 @if($counts['menunggu_verifikasi'] > 0)
                     <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
                 @endif
@@ -40,6 +40,13 @@
            class="p-4 rounded-2xl border transition-all {{ request('status') === \App\Models\Order::STATUS_DIPROSES ? 'bg-teal-100/60 border-teal-400 shadow-xs' : 'bg-surface-container-lowest border-surface-container hover:bg-surface-container-low' }}">
             <span class="text-[11px] font-semibold text-teal-800 block">Diproses</span>
             <span class="text-xl font-bold text-teal-900 mt-1 block">{{ $counts['diproses'] }}</span>
+        </a>
+
+        <!-- Dikirim -->
+        <a href="{{ route('admin.pesanan.index', ['status' => \App\Models\Order::STATUS_DIKIRIM]) }}" 
+           class="p-4 rounded-2xl border transition-all {{ request('status') === \App\Models\Order::STATUS_DIKIRIM ? 'bg-purple-100/60 border-purple-400 shadow-xs' : 'bg-surface-container-lowest border-surface-container hover:bg-surface-container-low' }}">
+            <span class="text-[11px] font-semibold text-purple-800 block">Dikirim</span>
+            <span class="text-xl font-bold text-purple-900 mt-1 block">{{ $counts['dikirim'] }}</span>
         </a>
 
         <!-- Selesai -->

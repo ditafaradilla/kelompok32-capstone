@@ -15,6 +15,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\Transaction;
+use App\Models\OrderStatusHistory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
@@ -353,6 +354,24 @@ class DatabaseSeeder extends Seeder
                 ]
             );
 
+            // Riwayat Status Order 1
+            OrderStatusHistory::updateOrCreate(
+                ['order_id' => $order1->id, 'status' => Order::STATUS_MENUNGGU_PEMBAYARAN],
+                [
+                    'catatan'    => 'Pesanan berhasil dibuat, menunggu pembayaran pelanggan.',
+                    'changed_by' => $bundaSarah->id,
+                    'created_at' => now()->subHours(2),
+                ]
+            );
+            OrderStatusHistory::updateOrCreate(
+                ['order_id' => $order1->id, 'status' => Order::STATUS_MENUNGGU_VERIFIKASI],
+                [
+                    'catatan'    => 'Pelanggan telah mengunggah bukti pembayaran via transfer BCA.',
+                    'changed_by' => $bundaSarah->id,
+                    'created_at' => now()->subHour(),
+                ]
+            );
+
             // Pesanan 2: Sudah Diverifikasi & Diproses (QRIS, dengan pencatatan Transaksi Pembukuan)
             $order2 = Order::updateOrCreate(
                 ['nomor_pesanan' => 'BC-20261108-0001'],
@@ -406,6 +425,109 @@ class DatabaseSeeder extends Seeder
                     'payment_method'   => 'QRIS',
                     'description'      => "Penjualan online pesanan #{$order2->nomor_pesanan} ({$order2->nama_penerima})",
                     'created_by'       => $admin->id,
+                ]
+            );
+
+            // Riwayat Status Order 2
+            OrderStatusHistory::updateOrCreate(
+                ['order_id' => $order2->id, 'status' => Order::STATUS_MENUNGGU_PEMBAYARAN],
+                [
+                    'catatan'    => 'Pesanan berhasil dibuat, menunggu pembayaran pelanggan.',
+                    'changed_by' => $bundaSarah->id,
+                    'created_at' => now()->subDays(2),
+                ]
+            );
+            OrderStatusHistory::updateOrCreate(
+                ['order_id' => $order2->id, 'status' => Order::STATUS_MENUNGGU_VERIFIKASI],
+                [
+                    'catatan'    => 'Pelanggan telah melakukan pembayaran via QRIS.',
+                    'changed_by' => $bundaSarah->id,
+                    'created_at' => now()->subDay()->subHours(2),
+                ]
+            );
+            OrderStatusHistory::updateOrCreate(
+                ['order_id' => $order2->id, 'status' => Order::STATUS_DIPROSES],
+                [
+                    'catatan'    => 'Pembayaran telah diverifikasi oleh admin. Pesanan sedang disiapkan.',
+                    'changed_by' => $admin->id,
+                    'created_at' => now()->subDay(),
+                ]
+            );
+
+            // Pesanan 3: Dikirim dengan Nomor Resi (FRI-05)
+            $order3 = Order::updateOrCreate(
+                ['nomor_pesanan' => 'BC-20261107-0001'],
+                [
+                    'user_id'           => $bundaSarah->id,
+                    'tanggal_pesanan'   => now()->subDays(2),
+                    'total_harga'       => $firstVariantSample->product->price * 1,
+                    'alamat_pengiriman' => 'Jl. Boulevard Raya No. 12, Kelapa Gading, Jakarta Utara',
+                    'nama_penerima'     => 'Bunda Sarah',
+                    'telepon_penerima'  => '089876543210',
+                    'catatan'           => 'Kirim segera',
+                    'ongkir'            => 0,
+                    'status_pesanan'    => Order::STATUS_DIKIRIM,
+                    'kurir'             => 'JNE Express',
+                    'nomor_resi'        => 'JNE9876543210',
+                ]
+            );
+
+            OrderItem::updateOrCreate(
+                [
+                    'order_id'           => $order3->id,
+                    'product_variant_id' => $firstVariantSample->id,
+                ],
+                [
+                    'product_id'   => $firstVariantSample->product_id,
+                    'jumlah'       => 1,
+                    'harga_satuan' => $firstVariantSample->product->price,
+                    'nama_produk'  => $firstVariantSample->product->name,
+                    'varian_label' => $firstVariantSample->variant_label,
+                ]
+            );
+
+            Payment::updateOrCreate(
+                ['order_id' => $order3->id],
+                [
+                    'metode_pembayaran' => Payment::METODE_TRANSFER,
+                    'jumlah_bayar'      => $order3->total_harga,
+                    'status_pembayaran' => Payment::STATUS_LUNAS,
+                    'tanggal_bayar'     => now()->subDays(2),
+                    'bukti_bayar'       => 'payment-proofs/sample-transfer-proof-3.jpg',
+                ]
+            );
+
+            // Riwayat Status Order 3
+            OrderStatusHistory::updateOrCreate(
+                ['order_id' => $order3->id, 'status' => Order::STATUS_MENUNGGU_PEMBAYARAN],
+                [
+                    'catatan'    => 'Pesanan berhasil dibuat, menunggu pembayaran pelanggan.',
+                    'changed_by' => $bundaSarah->id,
+                    'created_at' => now()->subDays(3),
+                ]
+            );
+            OrderStatusHistory::updateOrCreate(
+                ['order_id' => $order3->id, 'status' => Order::STATUS_MENUNGGU_VERIFIKASI],
+                [
+                    'catatan'    => 'Pelanggan telah mengunggah bukti transfer.',
+                    'changed_by' => $bundaSarah->id,
+                    'created_at' => now()->subDays(2)->subHours(3),
+                ]
+            );
+            OrderStatusHistory::updateOrCreate(
+                ['order_id' => $order3->id, 'status' => Order::STATUS_DIPROSES],
+                [
+                    'catatan'    => 'Pembayaran diverifikasi. Paket sedang dikemas.',
+                    'changed_by' => $admin->id,
+                    'created_at' => now()->subDays(2),
+                ]
+            );
+            OrderStatusHistory::updateOrCreate(
+                ['order_id' => $order3->id, 'status' => Order::STATUS_DIKIRIM],
+                [
+                    'catatan'    => 'Paket telah diserahkan ke JNE Express dengan nomor resi JNE9876543210.',
+                    'changed_by' => $admin->id,
+                    'created_at' => now()->subDay(),
                 ]
             );
         }
