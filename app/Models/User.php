@@ -51,6 +51,11 @@ class User extends Authenticatable
         return $this->hasMany(Order::class);
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *

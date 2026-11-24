@@ -37,6 +37,46 @@ class Product extends Model
         return $this->hasMany(PurchaseOrderItem::class);
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Memeriksa apakah pengguna memiliki pesanan berstatus 'selesai' untuk produk ini (FRI-07).
+     */
+    public function canBeReviewedBy(?User $user): bool
+    {
+        if (!$user) {
+            return false;
+        }
+
+        return OrderItem::where('product_id', $this->id)
+            ->whereHas('order', function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->where('status_pesanan', Order::STATUS_SELESAI);
+            })
+            ->exists();
+    }
+
+    /**
+     * Mengambil item pesanan selesai terakhir milik pengguna untuk produk ini (FRI-07).
+     */
+    public function getCompletedOrderItemFor(?User $user): ?OrderItem
+    {
+        if (!$user) {
+            return null;
+        }
+
+        return OrderItem::where('product_id', $this->id)
+            ->whereHas('order', function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->where('status_pesanan', Order::STATUS_SELESAI);
+            })
+            ->latest('id')
+            ->first();
+    }
+
     /**
      * Hitung total stok dari seluruh varian dan lokasi (toko & gudang)
      */

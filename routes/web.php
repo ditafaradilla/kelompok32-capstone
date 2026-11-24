@@ -24,6 +24,7 @@ use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\User\CheckoutController;
 use App\Http\Controllers\User\OrderController;
 use App\Http\Controllers\User\OrderHistoryController;
+use App\Http\Controllers\User\ReviewController;
 use App\Http\Middleware\EnsureUserIsAdmin;
 
 /*
@@ -121,6 +122,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/pesanan/{order}/lacak', [OrderController::class, 'lacak'])->name('pesanan.lacak');
     Route::post('/pesanan/{order}/terima', [OrderController::class, 'terima'])->name('pesanan.terima');
     Route::post('/pesanan/{order}/batal', [OrderController::class, 'cancel'])->name('pesanan.cancel');
+
+    // Rating & Ulasan Produk (FRI-07)
+    Route::get('/produk/{product}/ulasan/buat', [ReviewController::class, 'create'])->name('ulasan.create');
+    Route::post('/produk/{product}/ulasan', [ReviewController::class, 'store'])->name('ulasan.store')->middleware('throttle:30,1');
+    Route::get('/ulasan/{review}/ubah', [ReviewController::class, 'edit'])->name('ulasan.edit');
+    Route::put('/ulasan/{review}', [ReviewController::class, 'update'])->name('ulasan.update');
+    Route::delete('/ulasan/{review}', [ReviewController::class, 'destroy'])->name('ulasan.destroy');
 });
 
 

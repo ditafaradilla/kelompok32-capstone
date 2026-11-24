@@ -42,6 +42,11 @@ class OrderItem extends Model
         return $this->belongsTo(Product::class, 'product_id');
     }
 
+    public function review()
+    {
+        return $this->hasOne(Review::class);
+    }
+
     public function getSubtotalAttribute(): int
     {
         return $this->jumlah * $this->harga_satuan;

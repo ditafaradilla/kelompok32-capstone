@@ -51,6 +51,7 @@
                 <div class="relative flex-1 sm:flex-none">
                     <select name="sort" onchange="this.form.submit()" class="w-full sm:w-auto h-11 pl-3 pr-8 bg-surface-container-low text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0 appearance-none cursor-pointer font-medium">
                         <option value="terbaru" {{ request('sort') == 'terbaru' || !request('sort') ? 'selected' : '' }}>Terbaru</option>
+                        <option value="rating_tertinggi" {{ request('sort') == 'rating_tertinggi' ? 'selected' : '' }}>Rating Tertinggi</option>
                         <option value="harga_terendah" {{ request('sort') == 'harga_terendah' ? 'selected' : '' }}>Harga Terendah</option>
                         <option value="harga_tertinggi" {{ request('sort') == 'harga_tertinggi' ? 'selected' : '' }}>Harga Tertinggi</option>
                         <option value="terlama" {{ request('sort') == 'terlama' ? 'selected' : '' }}>Terlama</option>

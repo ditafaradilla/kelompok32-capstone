@@ -67,6 +67,18 @@
                     {{ $product->name }}
                 </h1>
                 
+                <!-- Rating Ringkas di Bawah Judul (FRI-07) -->
+                <div class="flex items-center gap-2 pt-0.5">
+                    <div class="flex items-center text-amber-500 font-bold text-xs gap-1">
+                        <span class="material-symbols-outlined text-base fill-current" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span>{{ number_format($averageRating, 1) }}</span>
+                    </div>
+                    <span class="text-xs text-outline">•</span>
+                    <a href="#section-ulasan" class="text-xs text-primary font-semibold hover:underline">
+                        {{ $totalReviews }} Ulasan Pembeli
+                    </a>
+                </div>
+
                 <div class="flex items-baseline gap-3 pt-1">
                     <div class="text-2xl sm:text-3xl font-extrabold text-primary">
                         {{ rupiah($product->price) }}
@@ -331,7 +343,164 @@
             </div>
 
             {{-- SLOT FRI-07: rating & ulasan --}}
-            <!-- Slot untuk ulasan pembeli dan penilaian produk -->
+            <div id="section-ulasan" class="pt-6 border-t border-surface-container space-y-5">
+                <div class="flex items-center justify-between gap-3 flex-wrap">
+                    <div>
+                        <h3 class="text-sm font-bold text-on-surface uppercase tracking-wider text-outline flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-sm">hotel_class</span>
+                            <span>Penilaian &amp; Ulasan Pembeli</span>
+                        </h3>
+                        <p class="text-xs text-on-surface-variant mt-0.5">
+                            Ulasan dari pelanggan yang telah membeli produk ini.
+                        </p>
+                    </div>
+
+                    @if($canReview)
+                        @if($userReview)
+                            <a href="{{ route('ulasan.edit', $userReview) }}" 
+                               class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-bold transition-all">
+                                <span class="material-symbols-outlined text-sm text-primary">edit_note</span>
+                                <span>Ubah Ulasan Anda</span>
+                            </a>
+                        @else
+                            <a href="{{ route('ulasan.create', $product) }}" 
+                               class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary/90 transition-all shadow-xs">
+                                <span class="material-symbols-outlined text-sm">rate_review</span>
+                                <span>Beri Ulasan Produk</span>
+                            </a>
+                        @endif
+                    @endif
+                </div>
+
+                <!-- Ringkasan Nilai & Distribusi Bintang -->
+                <div class="p-4 sm:p-5 rounded-2xl bg-surface-container-low border border-surface-container grid grid-cols-1 sm:grid-cols-12 gap-5 items-center">
+                    <!-- Skor Rata-rata -->
+                    <div class="sm:col-span-5 text-center sm:text-left flex flex-col items-center sm:items-start justify-center border-b sm:border-b-0 sm:border-r border-surface-container pb-4 sm:pb-0 sm:pr-4">
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-3xl sm:text-4xl font-extrabold text-on-surface">{{ number_format($averageRating, 1) }}</span>
+                            <span class="text-xs text-outline font-semibold">/ 5.0</span>
+                        </div>
+
+                        <!-- 5 Star Icons -->
+                        <div class="flex items-center text-amber-400 gap-0.5 my-1.5">
+                            @for($s = 1; $s <= 5; $s++)
+                                <span class="material-symbols-outlined text-lg sm:text-xl" style="font-variation-settings: 'FILL' {{ $s <= round($averageRating) ? '1' : '0' }};">star</span>
+                            @endfor
+                        </div>
+
+                        <span class="text-xs text-on-surface-variant font-medium">
+                            Berdasarkan <strong>{{ $totalReviews }}</strong> ulasan pembeli
+                        </span>
+                    </div>
+
+                    <!-- Bar Distribusi Bintang 5..1 -->
+                    <div class="sm:col-span-7 space-y-1.5 text-xs">
+                        @for($star = 5; $star >= 1; $star--)
+                            @php
+                                $d = $ratingDistribution[$star] ?? ['count' => 0, 'percentage' => 0];
+                            @endphp
+                            <div class="flex items-center gap-2">
+                                <span class="w-7 text-right text-[11px] font-bold text-on-surface-variant flex items-center justify-end gap-0.5">
+                                    <span>{{ $star }}</span>
+                                    <span class="material-symbols-outlined text-xs text-amber-500 fill-current" style="font-variation-settings: 'FILL' 1;">star</span>
+                                </span>
+                                <div class="flex-1 h-2 rounded-full bg-surface-container overflow-hidden">
+                                    <div class="h-full rounded-full bg-amber-400 transition-all duration-300" 
+                                         style="width: {{ $d['percentage'] }}%;"></div>
+                                </div>
+                                <span class="w-8 text-[11px] text-outline text-right font-medium">
+                                    {{ $d['count'] }}
+                                </span>
+                            </div>
+                        @endfor
+                    </div>
+                </div>
+
+                <!-- Daftar Ulasan Pembeli -->
+                @if($reviews->count() > 0)
+                    <div class="space-y-3 pt-2 divide-y divide-surface-container">
+                        @foreach($reviews as $r)
+                            <div class="pt-3 first:pt-0 space-y-2">
+                                <div class="flex items-start justify-between gap-3 flex-wrap">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-xs flex items-center justify-center">
+                                            {{ strtoupper(substr($r->masked_user_name, 0, 1)) }}
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-xs font-bold text-on-surface">{{ $r->masked_user_name }}</span>
+                                                @if(auth()->check() && $r->user_id === auth()->id())
+                                                    <span class="px-2 py-0.5 rounded-full bg-primary-fixed text-primary font-bold text-[10px]">
+                                                        Ulasan Anda
+                                                    </span>
+                                                @endif
+                                            </div>
+                                            <div class="flex items-center gap-2 text-[10px] text-outline mt-0.5">
+                                                <span>{{ $r->created_at->translatedFormat('d M Y') }}</span>
+                                                @if($r->orderItem && $r->orderItem->varian_label)
+                                                    <span>•</span>
+                                                    <span>Varian: <strong class="text-on-surface-variant">{{ $r->orderItem->varian_label }}</strong></span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Bintang Ulasan -->
+                                    <div class="flex items-center text-amber-400 gap-0.5">
+                                        @for($s = 1; $s <= 5; $s++)
+                                            <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' {{ $s <= $r->rating ? '1' : '0' }};">star</span>
+                                        @endfor
+                                    </div>
+                                </div>
+
+                                <!-- Isi Ulasan (strictly escaped) -->
+                                @if(!empty($r->ulasan))
+                                    <p class="text-xs text-on-surface-variant leading-relaxed pl-10 whitespace-pre-line">{{ $r->ulasan }}</p>
+                                @endif
+
+                                <!-- Tombol Ubah / Hapus untuk Pemilik Ulasan -->
+                                @if(auth()->check() && $r->user_id === auth()->id())
+                                    <div class="flex items-center justify-end gap-3 pl-10 pt-1 text-xs">
+                                        <a href="{{ route('ulasan.edit', $r) }}" class="text-primary font-semibold hover:underline flex items-center gap-1 text-[11px]">
+                                            <span class="material-symbols-outlined text-xs">edit</span>
+                                            <span>Ubah</span>
+                                        </a>
+                                        <form action="{{ route('ulasan.destroy', $r) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus ulasan ini?');" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-error font-semibold hover:underline flex items-center gap-1 text-[11px] cursor-pointer">
+                                                <span class="material-symbols-outlined text-xs">delete</span>
+                                                <span>Hapus</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <!-- State Kosong: Belum Ada Ulasan -->
+                    <div class="p-6 rounded-2xl bg-surface-container-low border border-surface-container text-center space-y-2">
+                        <span class="material-symbols-outlined text-3xl text-outline">rate_review</span>
+                        <h4 class="text-xs font-bold text-on-surface">Belum Ada Ulasan untuk Produk Ini</h4>
+                        <p class="text-[11px] text-on-surface-variant max-w-sm mx-auto">
+                            @if($canReview)
+                                Anda telah membeli pakaian ini. Berikan ulasan pertama Anda untuk membantu pembeli lain!
+                            @else
+                                Belum ada pelanggan yang menuliskan ulasan untuk produk ini.
+                            @endif
+                        </p>
+                        @if($canReview && !$userReview)
+                            <div class="pt-1">
+                                <a href="{{ route('ulasan.create', $product) }}" class="inline-flex items-center gap-1 px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary/90 transition-all shadow-xs">
+                                    <span class="material-symbols-outlined text-sm">star</span>
+                                    <span>Tulis Ulasan Pertama</span>
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                @endif
+            </div>
 
         </div>
 

@@ -10,6 +10,7 @@ use App\Models\Payment;
 use App\Models\Product;
 use App\Models\ProductStock;
 use App\Models\ProductVariant;
+use App\Models\Review;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
@@ -261,6 +262,85 @@ class DemoOrderSeeder extends Seeder
                     'updated_at' => $h['time'],
                 ]);
             }
+        }
+
+        // 5. Tambahkan ulasan contoh pada produk pesanan selesai (FRI-07)
+        $completedOrder = Order::where('user_id', $user->id)
+            ->where('status_pesanan', Order::STATUS_SELESAI)
+            ->first();
+
+        if ($completedOrder) {
+            $item1 = $completedOrder->items()->first();
+            if ($item1) {
+                Review::updateOrCreate(
+                    [
+                        'user_id'    => $user->id,
+                        'product_id' => $item1->product_id,
+                    ],
+                    [
+                        'order_item_id' => $item1->id,
+                        'rating'        => 5,
+                        'ulasan'        => 'Bahan katun organiknya sangat lembut dan adem saat dipakai si kecil. Jahitan sangat rapi, tidak bikin kulit bayi iritasi!',
+                    ]
+                );
+            }
+        }
+
+        // Buat beberapa ulasan pelanggan lain agar distribusi rating terlihat nyata
+        $otherCustomers = [
+            ['name' => 'Dian Kartika', 'email' => 'dian.kartika@example.com', 'rating' => 5, 'ulasan' => 'Puas sekali belanja di Baby Corner! Bahannya tidak menyusut setelah dicuci berkali-kali.'],
+            ['name' => 'Rina Melati', 'email' => 'rina.melati@example.com', 'rating' => 4, 'ulasan' => 'Modelnya lucu dan pas di badan bayi saya. Pengiriman cepat dan packaging aman.'],
+            ['name' => 'Siti Nurhaliza', 'email' => 'siti.nur@example.com', 'rating' => 5, 'ulasan' => 'Sangat rekomendasi untuk kado kelahiran anak teman. Kualitas premium!'],
+            ['name' => 'Mega Puspita', 'email' => 'mega.p@example.com', 'rating' => 4, 'ulasan' => 'Warnanya sesuai foto, bahannya lembut dan adem dipakai siang hari.'],
+        ];
+
+        foreach ($otherCustomers as $idx => $oc) {
+            $cust = User::firstOrCreate(
+                ['email' => $oc['email']],
+                [
+                    'name'     => $oc['name'],
+                    'password' => Hash::make('password123'),
+                    'role'     => 'user',
+                    'phone'    => '0812998877' . $idx,
+                ]
+            );
+
+            // Buat pesanan selesai untuk pelanggan ini agar memenuhi aturan canBeReviewedBy
+            $custOrder = Order::firstOrCreate(
+                ['nomor_pesanan' => 'BC-DEMO-CUST-0' . $idx],
+                [
+                    'user_id'           => $cust->id,
+                    'tanggal_pesanan'   => Carbon::now()->subDays(10 + $idx),
+                    'total_harga'       => $v1->product->price,
+                    'alamat_pengiriman' => 'Jl. Anggrek No. ' . ($idx + 1),
+                    'nama_penerima'     => $cust->name,
+                    'telepon_penerima'  => $cust->phone,
+                    'status_pesanan'    => Order::STATUS_SELESAI,
+                ]
+            );
+
+            $custItem = OrderItem::firstOrCreate(
+                ['order_id' => $custOrder->id, 'product_id' => $v1->product_id],
+                [
+                    'product_variant_id' => $v1->id,
+                    'jumlah'             => 1,
+                    'harga_satuan'       => $v1->product->price,
+                    'nama_produk'        => $v1->product->name,
+                    'varian_label'       => $v1->variant_label,
+                ]
+            );
+
+            Review::updateOrCreate(
+                [
+                    'user_id'    => $cust->id,
+                    'product_id' => $v1->product_id,
+                ],
+                [
+                    'order_item_id' => $custItem->id,
+                    'rating'        => $oc['rating'],
+                    'ulasan'        => $oc['ulasan'],
+                ]
+            );
         }
     }
 }

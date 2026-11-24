@@ -38,6 +38,26 @@
                 {{ $product->name }}
             </h3>
 
+            <!-- Rating & Jumlah Ulasan (FRI-07) -->
+            @php
+                $avgRating = isset($product->reviews_avg_rating) ? round($product->reviews_avg_rating, 1) : round($product->reviews->avg('rating') ?? 0, 1);
+                $reviewCount = $product->reviews_count ?? ($product->relationLoaded('reviews') ? $product->reviews->count() : $product->reviews()->count());
+            @endphp
+            <div class="flex items-center gap-1.5 text-[11px]">
+                @if($reviewCount > 0)
+                    <div class="flex items-center text-amber-500 font-bold gap-0.5">
+                        <span class="material-symbols-outlined text-xs fill-current" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span>{{ number_format($avgRating, 1) }}</span>
+                    </div>
+                    <span class="text-outline text-[10px]">({{ $reviewCount }})</span>
+                @else
+                    <span class="text-outline text-[10px] flex items-center gap-0.5">
+                        <span class="material-symbols-outlined text-xs text-outline/60">star</span>
+                        <span>Belum ada ulasan</span>
+                    </span>
+                @endif
+            </div>
+
             <!-- Ukuran Tersedia (Chips) -->
             <div class="flex flex-wrap gap-1 items-center">
                 @forelse($availableSizes as $size)

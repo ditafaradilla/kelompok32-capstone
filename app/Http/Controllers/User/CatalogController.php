@@ -15,7 +15,12 @@ class CatalogController extends Controller
      */
     public function home()
     {
-        $products = Product::with(['variants.stocks.location'])->latest()->take(8)->get();
+        $products = Product::with(['variants.stocks.location'])
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
+            ->latest()
+            ->take(8)
+            ->get();
         $sizeGuides = SizeGuide::all();
 
         return view('User.beranda-user', compact('products', 'sizeGuides'));
@@ -26,7 +31,9 @@ class CatalogController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Product::with(['variants.stocks.location']);
+        $query = Product::with(['variants.stocks.location'])
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews');
 
         // 1. Pencarian berdasarkan nama produk
         if ($request->filled('q')) {
@@ -56,6 +63,9 @@ class CatalogController extends Controller
             case 'harga_tertinggi':
                 $query->orderBy('price', 'desc');
                 break;
+            case 'rating_tertinggi':
+                $query->orderByDesc('reviews_avg_rating')->latest('id');
+                break;
             case 'terlama':
                 $query->oldest();
                 break;
@@ -83,15 +93,35 @@ class CatalogController extends Controller
         $relatedProducts = Product::where('category', $product->category)
             ->where('id', '!=', $product->id)
             ->with(['variants.stocks.location'])
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
             ->take(4)
             ->get();
 
         $sizeGuides = SizeGuide::all();
 
+        // Data ulasan & rating produk (FRI-07)
+        $averageRating = round($product->reviews()->avg('rating') ?? 0, 1);
+        $totalReviews = $product->reviews()->count();
+
+        $ratingDistribution = [];
+        for ($star = 5; $star >= 1; $star--) {
+            $count = $product->reviews()->where('rating', $star)->count();
+            $percentage = $totalReviews > 0 ? round(($count / $totalReviews) * 100) : 0;
+            $ratingDistribution[$star] = [
+                'count'      => $count,
+                'percentage' => $percentage,
+            ];
+        }
+
+        $reviews = $product->reviews()->with(['user', 'orderItem'])->latest('id')->get();
+
         // Data bayi & rekomendasi ukuran (FRI-01)
         $user = auth()->user();
         $baby = $user ? $user->baby : null;
         $recommendation = $baby ? $sizeRecommender->recommend($baby) : null;
+        $canReview = $user ? $product->canBeReviewedBy($user) : false;
+        $userReview = $user ? $product->reviews()->where('user_id', $user->id)->first() : null;
 
         $variantsData = $product->variants->map(function ($v) {
             return [
@@ -105,7 +135,20 @@ class CatalogController extends Controller
             ];
         });
 
-        return view('User.detail-produk', compact('product', 'relatedProducts', 'sizeGuides', 'variantsData', 'baby', 'recommendation'));
+        return view('User.detail-produk', compact(
+            'product', 
+            'relatedProducts', 
+            'sizeGuides', 
+            'variantsData', 
+            'baby', 
+            'recommendation',
+            'averageRating',
+            'totalReviews',
+            'ratingDistribution',
+            'reviews',
+            'canReview',
+            'userReview'
+        ));
     }
 }
 

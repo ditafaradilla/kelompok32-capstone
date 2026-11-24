@@ -232,8 +232,26 @@
                                         • {{ $item->jumlah }} pcs × {{ rupiah($item->harga_satuan) }}
                                     </p>
                                 </div>
-                                <div class="text-right text-xs font-bold text-on-surface shrink-0">
-                                    {{ rupiah($item->subtotal) }}
+                                <div class="text-right text-xs font-bold text-on-surface shrink-0 flex flex-col items-end gap-1">
+                                    <span>{{ rupiah($item->subtotal) }}</span>
+                                    @if($order->status_pesanan === \App\Models\Order::STATUS_SELESAI && $product)
+                                        @php
+                                            $itemRev = \App\Models\Review::where('user_id', auth()->id())
+                                                ->where('product_id', $product->id)
+                                                ->first();
+                                        @endphp
+                                        @if($itemRev)
+                                            <a href="{{ route('ulasan.edit', $itemRev) }}" class="text-[11px] font-bold text-primary hover:underline flex items-center gap-0.5">
+                                                <span class="material-symbols-outlined text-xs">edit_note</span>
+                                                <span>Ubah Ulasan</span>
+                                            </a>
+                                        @else
+                                            <a href="{{ route('ulasan.create', $product) }}" class="text-[11px] font-bold text-amber-600 hover:text-amber-700 hover:underline flex items-center gap-0.5">
+                                                <span class="material-symbols-outlined text-xs">star</span>
+                                                <span>Beri Ulasan</span>
+                                            </a>
+                                        @endif
+                                    @endif
                                 </div>
                             </div>
                         @endforeach

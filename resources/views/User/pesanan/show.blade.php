@@ -128,13 +128,24 @@
                             <!-- Subtotal Item -->
                             <div class="text-right shrink-0">
                                 <span class="font-bold text-sm text-on-surface">{{ rupiah($item->subtotal) }}</span>
-                                @if($order->status_pesanan === \App\Models\Order::STATUS_SELESAI)
+                                @if($order->status_pesanan === \App\Models\Order::STATUS_SELESAI && $product)
+                                    @php
+                                        $existingRev = \App\Models\Review::where('user_id', auth()->id())
+                                            ->where('product_id', $product->id)
+                                            ->first();
+                                    @endphp
                                     <div class="mt-2">
-                                        {{-- TODO FRI-07: ulasan produk --}}
-                                        <a href="#" class="inline-flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-700 hover:underline">
-                                            <span class="material-symbols-outlined text-sm">hotel_class</span>
-                                            <span>Beri Ulasan</span>
-                                        </a>
+                                        @if($existingRev)
+                                            <a href="{{ route('ulasan.edit', $existingRev) }}" class="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
+                                                <span class="material-symbols-outlined text-sm">edit_note</span>
+                                                <span>Ubah Ulasan</span>
+                                            </a>
+                                        @else
+                                            <a href="{{ route('ulasan.create', $product) }}" class="inline-flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-700 hover:underline">
+                                                <span class="material-symbols-outlined text-sm">hotel_class</span>
+                                                <span>Beri Ulasan</span>
+                                            </a>
+                                        @endif
                                     </div>
                                 @endif
                             </div>
