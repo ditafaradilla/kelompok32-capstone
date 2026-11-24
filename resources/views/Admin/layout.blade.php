@@ -84,69 +84,7 @@
 </head>
 <body class="bg-surface font-sans text-on-surface antialiased">
 
-    <!-- ASIDE SIDEBAR -->
-    <aside class="fixed left-0 top-0 bottom-0 w-72 bg-surface-container-lowest z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
-        <div class="flex flex-col">
-            <div class="h-20 px-6 flex items-center justify-between border-b border-surface-container-low">
-                <div class="flex items-center gap-2">
-                    <span class="text-xl font-bold tracking-tight text-primary">Baby Corner</span>
-                    <span class="px-2 py-0.5 rounded-full bg-surface-container text-on-primary-container text-xs font-semibold">Backoffice</span>
-                </div>
-            </div>
-            
-            <div class="px-4 py-4">
-                <div class="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-outline">Modul Inventaris & Produk</div>
-                <nav class="flex flex-col gap-1.5">
-                    <!-- Dashboard -->
-                    <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-primary-container text-on-primary-container font-semibold shadow-xs' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface' }}">
-                        <span class="material-symbols-outlined text-[20px]">dashboard</span>
-                        <span>Dashboard</span>
-                    </a>
-
-                    <!-- Fitur 8: Kelola Produk & Pemisahan Stok -->
-                    <a href="{{ route('admin.produk.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all {{ request()->routeIs('admin.produk.*') ? 'bg-primary-container text-on-primary-container font-semibold shadow-xs' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface' }}">
-                        <span class="material-symbols-outlined text-[20px]">styler</span>
-                        <span>Kelola Produk & Stok</span>
-                    </a>
-
-                    <!-- Fitur 9: Pencatatan Lokasi dan Stok -->
-                    <a href="{{ route('admin.lokasi.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all {{ request()->routeIs('admin.lokasi.*') ? 'bg-primary-container text-on-primary-container font-semibold shadow-xs' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface' }}">
-                        <span class="material-symbols-outlined text-[20px]">warehouse</span>
-                        <span>Lokasi & Stok Toko</span>
-                    </a>
-
-                    <!-- Fitur 10: Pemesanan Barang ke Pemasok -->
-                    <a href="{{ route('admin.pemesanan.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all {{ request()->routeIs('admin.pemesanan.*') ? 'bg-primary-container text-on-primary-container font-semibold shadow-xs' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface' }}">
-                        <span class="material-symbols-outlined text-[20px]">local_shipping</span>
-                        <span>Pemesanan Pemasok</span>
-                    </a>
-
-                    <!-- Fitur 11: Penerimaan Barang & Peringatan Stok -->
-                    <a href="{{ route('admin.penerimaan.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all {{ request()->routeIs('admin.penerimaan.*') ? 'bg-primary-container text-on-primary-container font-semibold shadow-xs' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface' }}">
-                        <span class="material-symbols-outlined text-[20px]">inventory_2</span>
-                        <span>Penerimaan Barang</span>
-                    </a>
-
-                    <!-- Fitur FRI-04: Pesanan Pelanggan -->
-                    <a href="{{ route('admin.pesanan.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all {{ request()->routeIs('admin.pesanan.*') ? 'bg-primary-container text-on-primary-container font-semibold shadow-xs' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface' }}">
-                        <span class="material-symbols-outlined text-[20px]">receipt_long</span>
-                        <span>Pesanan</span>
-                    </a>
-                </nav>
-            </div>
-        </div>
-
-        <!-- Tombol Logout -->
-        <div class="p-4 border-t border-surface-container-low">
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-error-container text-on-error-container text-xs font-semibold hover:opacity-90 transition-all cursor-pointer">
-                    <span class="material-symbols-outlined text-sm">logout</span>
-                    <span>Keluar Admin</span>
-                </button>
-            </form>
-        </div>
-    </aside>
+    @include('Admin.Partials.sidebar')
 
     <!-- WRAPPER MAIN & HEADER -->
     <div class="pl-72 flex flex-col min-h-screen">
