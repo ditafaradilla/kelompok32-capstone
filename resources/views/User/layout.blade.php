@@ -119,12 +119,19 @@
             <!-- Right: Action Slots & User Profile -->
             <div class="flex items-center gap-2 sm:gap-3">
                 
-                {{-- Slot FRI-16: Tombol WhatsApp (Tanpa fungsi dulu) --}}
-                <div class="relative">
-                    <button type="button" class="w-9 h-9 rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-secondary flex items-center justify-center transition-colors shadow-xs" title="Chat WhatsApp (Segera Hadir)">
-                        <span class="material-symbols-outlined text-lg">chat</span>
-                    </button>
-                </div>
+                {{-- Slot FRI-16: Tombol WhatsApp --}}
+                @if(\App\Support\WhatsApp::number())
+                    <div class="relative">
+                        <a href="{{ wa_link() }}" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           aria-label="Hubungi kami lewat WhatsApp"
+                           class="w-9 h-9 rounded-full bg-surface-container-low hover:bg-emerald-50 text-on-surface-variant hover:text-emerald-600 flex items-center justify-center transition-colors shadow-xs" 
+                           title="Hubungi kami lewat WhatsApp">
+                            <span class="material-symbols-outlined text-lg">chat</span>
+                        </a>
+                    </div>
+                @endif
 
                 <!-- Keranjang Belanja (FRI-03) -->
                 <div class="relative">
@@ -295,7 +302,7 @@
                     <li><a href="{{ route('panduan.ukuran') }}" class="hover:text-on-surface transition-colors">Panduan Ukuran</a></li>
                     <li><a href="#" class="hover:text-on-surface transition-colors">Status Pengiriman</a></li>
                     <li><a href="#" class="hover:text-on-surface transition-colors">Kebijakan Pengembalian</a></li>
-                    <li><a href="#" class="hover:text-on-surface transition-colors">Pusat Bantuan & FAQ</a></li>
+                    <li><a href="{{ \App\Support\WhatsApp::number() ? wa_link() : '#' }}" @if(\App\Support\WhatsApp::number()) target="_blank" rel="noopener noreferrer" @endif class="hover:text-on-surface transition-colors">Pusat Bantuan & FAQ</a></li>
                 </ul>
             </div>
             <div class="space-y-2">
@@ -303,7 +310,7 @@
                 <ul class="space-y-1.5 text-xs text-on-surface-variant">
                     <li><a href="#" class="hover:text-on-surface transition-colors">Filosofi Organik</a></li>
                     <li><a href="#" class="hover:text-on-surface transition-colors">Standar & Sertifikasi</a></li>
-                    <li><a href="#" class="hover:text-on-surface transition-colors">Hubungi Kami</a></li>
+                    <li><a href="{{ \App\Support\WhatsApp::number() ? wa_link() : '#' }}" @if(\App\Support\WhatsApp::number()) target="_blank" rel="noopener noreferrer" @endif class="hover:text-on-surface transition-colors">Hubungi Kami</a></li>
                 </ul>
             </div>
         </div>
@@ -315,6 +322,20 @@
             </div>
         </div>
     </footer>
+
+    <!-- Tombol Mengambang (Floating) WhatsApp (FRI-16) -->
+    @if(\App\Support\WhatsApp::number())
+        <div class="fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-40">
+            <a href="{{ wa_link() }}" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               aria-label="Hubungi kami lewat WhatsApp"
+               title="Hubungi kami lewat WhatsApp"
+               class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200">
+                <span class="material-symbols-outlined text-2xl sm:text-3xl">chat</span>
+            </a>
+        </div>
+    @endif
 
     @stack('scripts')
 </body>

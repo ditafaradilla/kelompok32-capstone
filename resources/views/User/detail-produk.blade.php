@@ -122,8 +122,19 @@
                     </div>
 
                     @if($recommendation['status'] === 'di_luar_rentang')
-                        <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 leading-relaxed">
-                            {{ $recommendation['alasan'] }}
+                        <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 leading-relaxed space-y-2">
+                            <p>{{ $recommendation['alasan'] }}</p>
+                            @if(\App\Support\WhatsApp::sizeLink($product, $baby))
+                                <div class="pt-1">
+                                    <a href="{{ \App\Support\WhatsApp::sizeLink($product, $baby) }}" 
+                                       target="_blank" 
+                                       rel="noopener noreferrer" 
+                                       class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors shadow-xs">
+                                        <span class="material-symbols-outlined text-sm">chat</span>
+                                        <span>Ragu dengan ukuran? Tanya kami</span>
+                                    </a>
+                                </div>
+                            @endif
                         </div>
                     @else
                         <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
@@ -162,6 +173,19 @@
                                 @endif
                             </div>
                         @endif
+
+                        @if(\App\Support\WhatsApp::sizeLink($product, $baby))
+                            <div class="pt-2 border-t border-primary/10 flex items-center justify-between text-[11px]">
+                                <span class="text-outline">Ragu dengan ukuran baju si kecil?</span>
+                                <a href="{{ \App\Support\WhatsApp::sizeLink($product, $baby) }}" 
+                                   target="_blank" 
+                                   rel="noopener noreferrer" 
+                                   class="text-emerald-700 hover:text-emerald-800 font-bold hover:underline inline-flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-xs text-emerald-600">chat</span>
+                                    <span>Ragu dengan ukuran? Tanya kami</span>
+                                </a>
+                            </div>
+                        @endif
                     @endif
                 </div>
 
@@ -177,9 +201,20 @@
                             <p class="text-[11px] text-on-surface-variant">Sistem kami akan memilihkan ukuran pakaian yang paling pas otomatis.</p>
                         </div>
                     </div>
-                    <a href="{{ route('profile.edit', ['redirect' => request()->getRequestUri()]) }}" class="px-4 py-2 rounded-xl bg-primary hover:bg-surface-tint text-on-primary text-xs font-semibold shrink-0 text-center shadow-xs transition-all">
-                        Isi Data Bayi Sekarang
-                    </a>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <a href="{{ route('profile.edit', ['redirect' => request()->getRequestUri()]) }}" class="px-4 py-2 rounded-xl bg-primary hover:bg-surface-tint text-on-primary text-xs font-semibold shrink-0 text-center shadow-xs transition-all">
+                            Isi Data Bayi Sekarang
+                        </a>
+                        @if(\App\Support\WhatsApp::sizeLink($product, null))
+                            <a href="{{ \App\Support\WhatsApp::sizeLink($product, null) }}" 
+                               target="_blank" 
+                               rel="noopener noreferrer" 
+                               class="px-3 py-2 rounded-xl bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 text-xs font-bold shrink-0 text-center transition-all inline-flex items-center gap-1">
+                                <span class="material-symbols-outlined text-xs text-emerald-600">chat</span>
+                                <span>Ragu dengan ukuran? Tanya kami</span>
+                            </a>
+                        @endif
+                    </div>
                 </div>
             @endif
 
@@ -328,7 +363,17 @@
                 </form>
 
                 {{-- SLOT FRI-16: tombol WhatsApp --}}
-                <!-- Slot untuk tombol pemesanan WhatsApp cepat -->
+                @if(\App\Support\WhatsApp::productLink($product))
+                    <div class="pt-1">
+                        <a href="{{ \App\Support\WhatsApp::productLink($product) }}" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="w-full h-11 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer">
+                            <span class="material-symbols-outlined text-emerald-600 text-lg">chat</span>
+                            <span>Tanya produk ini via WhatsApp</span>
+                        </a>
+                    </div>
+                @endif
             </div>
 
             <!-- Deskripsi Produk -->

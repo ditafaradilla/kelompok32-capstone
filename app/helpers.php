@@ -14,3 +14,17 @@ if (!function_exists('rupiah')) {
     }
 }
 
+if (!function_exists('wa_link')) {
+    /**
+     * Menghasilkan link tautan WhatsApp Baby Corner.
+     * Mengembalikan null jika nomor WhatsApp toko belum dikonfigurasi / tidak valid.
+     *
+     * @param string|null $message
+     * @return string|null
+     */
+    function wa_link(?string $message = null): ?string
+    {
+        return \App\Support\WhatsApp::link($message ?? \App\Support\WhatsApp::generalMessage());
+    }
+}
+

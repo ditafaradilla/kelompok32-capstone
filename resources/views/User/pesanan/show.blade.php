@@ -317,18 +317,16 @@
                         <span>Lacak Status &amp; Pengiriman</span>
                     </a>
 
-                    <!-- Hubungi Bantuan WhatsApp -->
-                    @php
-                        $waMsg = urlencode("Halo Admin Baby Corner, saya ingin bertanya tentang pesanan #" . $order->nomor_pesanan);
-                        $waUrl = "https://wa.me/" . config('shop.whatsapp') . "?text=" . $waMsg;
-                    @endphp
-                    <a href="{{ $waUrl }}" 
-                       target="_blank" 
-                       rel="noopener noreferrer" 
-                       class="w-full h-10 rounded-xl bg-emerald-50 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition-colors flex items-center justify-center gap-2 border border-emerald-200">
-                        <span class="material-symbols-outlined text-emerald-600 text-base">chat</span>
-                        <span>Bantuan CS via WhatsApp</span>
-                    </a>
+                    <!-- Hubungi Bantuan WhatsApp (FRI-16) -->
+                    @if(\App\Support\WhatsApp::orderLink($order))
+                        <a href="{{ \App\Support\WhatsApp::orderLink($order) }}" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="w-full h-10 rounded-xl bg-emerald-50 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition-colors flex items-center justify-center gap-2 border border-emerald-200">
+                            <span class="material-symbols-outlined text-emerald-600 text-base">chat</span>
+                            <span>Tanya soal pesanan ini</span>
+                        </a>
+                    @endif
 
                     <a href="{{ route('riwayat.index') }}" 
                        class="w-full h-10 rounded-xl bg-surface-container-low text-on-surface-variant text-xs font-bold hover:text-primary transition-colors flex items-center justify-center gap-1.5">

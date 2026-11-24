@@ -46,6 +46,24 @@ Sistem e-commerce dan manajemen inventaris pakaian bayi katun organik bersertifi
    php artisan test
    ```
 
+### Konfigurasi Layanan WhatsApp (FRI-16)
+
+Untuk mengaktifkan tombol obrolan dan tautan konsultasi WhatsApp bagi pelanggan, atur nomor WhatsApp toko pada file `.env`:
+
+```env
+SHOP_WHATSAPP=6281234567890
+```
+
+> **Catatan:** Gunakan format nomor internasional tanpa tanda `+` (contoh: `6281234567890`). Sistem juga otomatis menormalisasi format lokal seperti `0812...` atau `+62...`.
+
+Setelah memperbarui `.env`, jalankan perintah pembersihan cache konfigurasi:
+
+```bash
+php artisan config:clear
+```
+
+Jika `SHOP_WHATSAPP` dikosongkan, tombol WhatsApp tidak akan ditampilkan pada antarmuka pelanggan dan tidak menimbulkan galat.
+
 ---
 
 ## About Laravel
