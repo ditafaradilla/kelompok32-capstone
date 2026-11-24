@@ -36,3 +36,4 @@ class OrderStatusHistory extends Model
         return Order::STATUS_LABELS[$this->status] ?? $this->status;
     }
 }
+

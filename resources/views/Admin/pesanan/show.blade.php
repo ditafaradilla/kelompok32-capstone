@@ -241,9 +241,14 @@
                 </div>
 
                 @if(!empty($nextAllowed))
+                    @php
+                        $selectedInitialStatus = old('status', $nextAllowed[0]);
+                        $isDikirimInitial = ($selectedInitialStatus === \App\Models\Order::STATUS_DIKIRIM);
+                    @endphp
                     <form action="{{ route('admin.pesanan.status', $order) }}" 
                           method="POST" 
-                          x-data="{ selectedStatus: '{{ old('status', $nextAllowed[0]) }}' }"
+                          id="form-update-status"
+                          x-data="{ selectedStatus: '{{ $selectedInitialStatus }}' }"
                           class="space-y-3.5 text-xs">
                         @csrf
                         @method('PATCH')
@@ -254,11 +259,13 @@
                                 Pilih Status Baru *
                             </label>
                             <select name="status" 
+                                    id="status-select"
                                     x-model="selectedStatus" 
+                                    onchange="toggleEkspedisiFields(this.value)"
                                     required 
                                     class="w-full h-10 px-3 bg-surface-container-low text-on-surface text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-primary border-0 font-medium">
                                 @foreach($nextAllowed as $st)
-                                    <option value="{{ $st }}" {{ old('status', $nextAllowed[0]) === $st ? 'selected' : '' }}>
+                                    <option value="{{ $st }}" {{ $selectedInitialStatus === $st ? 'selected' : '' }}>
                                         {{ \App\Models\Order::STATUS_LABELS[$st] ?? $st }}
                                     </option>
                                 @endforeach
@@ -268,10 +275,12 @@
                             @enderror
                         </div>
 
-                        <!-- Input Kurir & Resi (Muncul Jika Memilih 'dikirim') -->
-                        <div x-show="selectedStatus === '{{ \App\Models\Order::STATUS_DIKIRIM }}'" 
+                        <!-- Input Kurir & Resi (Muncul dan Wajib Hanya Jika Memilih 'dikirim') -->
+                        <div id="ekspedisi-section" 
+                             x-show="selectedStatus === '{{ \App\Models\Order::STATUS_DIKIRIM }}'" 
                              x-transition 
-                             class="space-y-3 p-3.5 rounded-xl bg-surface-container-low border border-surface-container">
+                             class="space-y-3 p-3.5 rounded-xl bg-surface-container-low border border-surface-container"
+                             style="{{ $isDikirimInitial ? 'display: block;' : 'display: none;' }}">
                             <div class="font-bold text-[11px] text-on-surface flex items-center gap-1.5 text-primary">
                                 <span class="material-symbols-outlined text-base">local_shipping</span>
                                 <span>Informasi Ekspedisi Pengiriman *</span>
@@ -281,8 +290,12 @@
                                 <label class="block text-[10px] font-semibold text-outline mb-1">Nama Kurir / Ekspedisi *</label>
                                 <input type="text" 
                                        name="kurir" 
+                                       id="kurir-input"
                                        value="{{ old('kurir', $order->kurir) }}" 
                                        placeholder="Contoh: JNE, J&T, SiCepat..." 
+                                       :required="selectedStatus === '{{ \App\Models\Order::STATUS_DIKIRIM }}'"
+                                       :disabled="selectedStatus !== '{{ \App\Models\Order::STATUS_DIKIRIM }}'"
+                                       {{ $isDikirimInitial ? 'required' : 'disabled' }}
                                        class="w-full h-9 px-3 bg-surface-container-lowest text-on-surface text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-primary border-0" />
                                 @error('kurir')
                                     <span class="text-error text-[10px]">{{ $message }}</span>
@@ -293,8 +306,12 @@
                                 <label class="block text-[10px] font-semibold text-outline mb-1">Nomor Resi Pengiriman *</label>
                                 <input type="text" 
                                        name="nomor_resi" 
+                                       id="nomor-resi-input"
                                        value="{{ old('nomor_resi', $order->nomor_resi) }}" 
                                        placeholder="Contoh: JNE1234567890..." 
+                                       :required="selectedStatus === '{{ \App\Models\Order::STATUS_DIKIRIM }}'"
+                                       :disabled="selectedStatus !== '{{ \App\Models\Order::STATUS_DIKIRIM }}'"
+                                       {{ $isDikirimInitial ? 'required' : 'disabled' }}
                                        class="w-full h-9 px-3 bg-surface-container-lowest text-on-surface text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-primary border-0 font-mono" />
                                 @error('nomor_resi')
                                     <span class="text-error text-[10px]">{{ $message }}</span>
@@ -481,4 +498,39 @@
     </div>
 
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    function toggleEkspedisiFields(status) {
+        const ekspedisiSection = document.getElementById('ekspedisi-section');
+        const kurirInput = document.getElementById('kurir-input');
+        const resiInput = document.getElementById('nomor-resi-input');
+
+        if (!ekspedisiSection || !kurirInput || !resiInput) return;
+
+        const isDikirim = (status === '{{ \App\Models\Order::STATUS_DIKIRIM }}');
+
+        if (isDikirim) {
+            ekspedisiSection.style.display = 'block';
+            kurirInput.required = true;
+            resiInput.required = true;
+            kurirInput.disabled = false;
+            resiInput.disabled = false;
+        } else {
+            ekspedisiSection.style.display = 'none';
+            kurirInput.required = false;
+            resiInput.required = false;
+            kurirInput.disabled = true;
+            resiInput.disabled = true;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const statusSelect = document.getElementById('status-select');
+        if (statusSelect) {
+            toggleEkspedisiFields(statusSelect.value);
+        }
+    });
+</script>
 @endsection

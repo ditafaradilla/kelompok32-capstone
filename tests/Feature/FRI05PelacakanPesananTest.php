@@ -305,4 +305,45 @@ class FRI05PelacakanPesananTest extends TestCase
         $this->assertEquals(Order::STATUS_SELESAI, $order->fresh()->status_pesanan);
         $this->assertEquals('Pesanan dikonfirmasi selesai oleh admin via resi kurir', $order->histories()->reorder()->latest('id')->first()->catatan);
     }
+
+    /**
+     * Skenario 9: Tampilan form ekspedisi tersembunyi secara default saat status baru bukan 'dikirim'.
+     */
+    public function test_skenario_9_form_ekspedisi_tersembunyi_saat_status_bukan_dikirim(): void
+    {
+        $admin = $this->createAdminUser();
+        $user = User::factory()->create();
+
+        // Pesanan dalam status menunggu_verifikasi -> next statuses: diproses, menunggu_pembayaran, dibatalkan (tidak ada 'dikirim')
+        [$order] = $this->createOrderForUser($user, Order::STATUS_MENUNGGU_VERIFIKASI);
+
+        $response = $this->actingAs($admin)->get(route('admin.pesanan.show', $order));
+        $response->assertOk();
+
+        // Section ekspedisi harus ber-style display: none;
+        $response->assertSee('id="ekspedisi-section"', false);
+        $response->assertSee('display: none;', false);
+        // Script toggleEkspedisiFields harus tersedia
+        $response->assertSee('function toggleEkspedisiFields', false);
+    }
+
+    /**
+     * Skenario 10: Tampilan form ekspedisi aktif dan wajib saat status baru adalah 'dikirim'.
+     */
+    public function test_skenario_10_form_ekspedisi_tampil_dan_wajib_saat_status_dikirim(): void
+    {
+        $admin = $this->createAdminUser();
+        $user = User::factory()->create();
+
+        // Pesanan dalam status diproses -> next status pertama adalah 'dikirim'
+        [$order] = $this->createOrderForUser($user, Order::STATUS_DIPROSES);
+
+        $response = $this->actingAs($admin)->get(route('admin.pesanan.show', $order));
+        $response->assertOk();
+
+        // Section ekspedisi harus ber-style display: block;
+        $response->assertSee('id="ekspedisi-section"', false);
+        $response->assertSee('display: block;', false);
+        $response->assertSee(':required="selectedStatus === \'dikirim\'"', false);
+    }
 }

@@ -17,8 +17,9 @@
         ::-webkit-scrollbar { display: none; }
     </style>
     
-    <!-- Tailwind CSS Script -->
+    <!-- Tailwind CSS & Alpine JS Script -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
