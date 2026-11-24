@@ -108,6 +108,11 @@
                     <a href="{{ route('panduan.ukuran') }}" class="text-xs font-semibold {{ request()->routeIs('panduan.ukuran') ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface' }} transition-colors">
                         Panduan Ukuran
                     </a>
+                    @auth
+                        <a href="{{ route('riwayat.index') }}" class="text-xs font-semibold {{ request()->routeIs('riwayat.*') ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface' }} transition-colors">
+                            Riwayat Pembelian
+                        </a>
+                    @endauth
                 </nav>
             </div>
 
@@ -213,6 +218,12 @@
                     </span>
                 @endif
             </a>
+            @auth
+                <a href="{{ route('riwayat.index') }}" class="flex items-center gap-1 font-semibold {{ request()->routeIs('riwayat.*') ? 'text-primary' : 'text-on-surface-variant' }}">
+                    <span class="material-symbols-outlined text-sm">receipt_long</span>
+                    <span>Riwayat</span>
+                </a>
+            @endauth
         </div>
     </header>
 

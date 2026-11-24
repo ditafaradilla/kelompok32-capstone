@@ -319,18 +319,24 @@ class FRI06RiwayatPembelianTest extends TestCase
     }
 
     /**
-     * Skenario 12: Menu Riwayat Pembelian muncul di dropdown navbar dan breadcrumb terhubung ke riwayat.index.
+     * Skenario 12: Menu Riwayat Pembelian muncul di navbar utama, dropdown navbar, dan breadcrumb terhubung ke riwayat.index.
      */
     public function test_skenario_12_breadcrumb_dan_menu_navbar_mengarah_ke_riwayat(): void
     {
         $user = User::factory()->create();
         $order = $this->createOrderForUser($user, Order::STATUS_DIPROSES);
 
-        // Halaman dashboard memuat menu Riwayat Pembelian di navbar dropdown
+        // Halaman dashboard memuat menu Riwayat Pembelian di navbar utama & dropdown
         $resNavbar = $this->actingAs($user)->get(route('dashboard'));
         $resNavbar->assertOk();
         $resNavbar->assertSee('Riwayat Pembelian');
         $resNavbar->assertSee(route('riwayat.index'));
+
+        // Pada route riwayat.index, link navbar utama ditandai aktif (text-primary)
+        $resRiwayat = $this->actingAs($user)->get(route('riwayat.index'));
+        $resRiwayat->assertOk();
+        $resRiwayat->assertSee('Riwayat Pembelian');
+        $resRiwayat->assertSee('text-primary');
 
         // Halaman detail pesanan memiliki breadcrumb yang menuju riwayat.index
         $resShow = $this->actingAs($user)->get(route('pesanan.show', $order));
